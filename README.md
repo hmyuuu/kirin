@@ -1,7 +1,7 @@
 # KIRIN
 
 [![CI](https://github.com/QuEraComputing/kirin/actions/workflows/ci.yml/badge.svg)](https://github.com/QuEraComputing/kirin/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/QuEraComputing/kirin/graph/badge.svg?token=g76dV2pH1j)](https://codecov.io/gh/QuEraComputing/kirin)
+[![codecov](https://codecov.io/gh/QuEraComputing/kirin/graph/badge.svg?token=lkUZ9DTqy4)](https://codecov.io/gh/QuEraComputing/kirin)
 
 *K*ernel *I*ntermediate *R*epresentation *IN*frastructure
 
