@@ -1,0 +1,97 @@
+[project]
+name = "kirin-toolchain"
+version = "0.5.0"
+description = "The Kirin Toolchain for building compilers and interpreters."
+authors = [{ name = "Roger-luo", email = "rluo@quera.com" }]
+dependencies = [
+    "rich>=13.7.1",
+    "beartype>=0.17.2",
+    "typing_extensions>=4.11.0",
+]
+readme = "README.md"
+requires-python = ">= 3.10"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "black>=24.2.0",
+    "ruff>=0.3.0",
+    "pytest>=8.1.1",
+    "ipython>=8.12.3",
+    "pre-commit>=3.5.0",
+    "python-pptx>=0.6.23",
+    "isort>=5.13.2",
+    "coverage>=7.4.4",
+    "mkdocs>=1.5.3",
+    "mike>=2.0.0",
+    "twine>=5.0.0",
+    "tomlkit>=0.12.4",
+    "numpy>=1.26.4",
+    "mypy>=1.11.2",
+    "pyright>=1.1.380",
+]
+
+[tool.rye.scripts]
+clean = "git clean -f"
+release = "python scripts/release.py"
+"coverage:run" = "coverage run -m pytest test"
+"coverage:xml" = "coverage xml"
+"coverage:html" = "coverage html"
+"coverage:report" = "coverage report"
+"coverage:open" = "open htmlcov/index.html"
+"coverage:github" = { chain = [
+    "coverage:run",
+    "coverage:xml",
+    "coverage:report",
+] }
+"test:all" = "pytest test"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kirin"]
+
+[tool.isort]
+profile = "black"
+combine_as_imports = true
+multi_line_output = 3
+src_paths = ["src/kirin"]
+
+[tool.black]
+line-length = 88
+
+[tool.ruff]
+target-version = "py312"
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.lint]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.coverage.run]
+include = ["src/kirin/*"]
