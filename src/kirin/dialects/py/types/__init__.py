@@ -11,6 +11,7 @@ from kirin.dialects.py.types.base import (
     PyUnion as PyUnion,
     PyVararg as PyVararg,
     hint2type as hint2type,
+    widen_const as widen_const,
 )
 from kirin.dialects.py.types.builtin import (
     Any as Any,
@@ -24,6 +25,7 @@ from kirin.dialects.py.types.builtin import (
     List as List,
     NoneType as NoneType,
     Set as Set,
+    Slice as Slice,
     String as String,
     Tuple as Tuple,
     TypeofFunctionType as TypeofFunctionType,

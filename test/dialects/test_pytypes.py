@@ -16,6 +16,7 @@ from kirin.dialects.py.types.builtin import (
     Int,
     List,
     NoneType,
+    Slice,
     String,
     Tuple,
 )
@@ -53,6 +54,8 @@ def test_union():
     assert PyUnion(PyClass(Derived), PyClass(Base)) == PyClass(Base)
     assert PyAnyType() is PyAnyType()
     assert PyBottomType() is PyBottomType()
+    t = Int.join(Float).join(String)
+    assert t.is_subseteq(Int | Float | String)
 
 
 def test_meet():
@@ -71,6 +74,7 @@ def test_literal():
     )
     assert PyLiteral("aaa").meet(PyLiteral("bbb")) == PyBottomType()
     assert PyLiteral("aaa").meet(PyLiteral("aaa")) == PyLiteral("aaa")
+    assert PyLiteral("aaa").is_subseteq(PyLiteral("aaa") | String)
     assert Int.is_subseteq(PyLiteral("aaa")) is False
     assert Tuple[Int].is_subseteq(PyLiteral("aaa")) is False
 
@@ -100,6 +104,8 @@ def test_generic_is_subtype():
     assert Dict[Int, Int].is_subtype(Dict)
     assert Dict[Int, Int].is_subtype(Dict[Int])
     assert not Dict[Int, Int].is_subtype(Dict[Float])
+    assert PyClass(slice).is_subseteq(Slice)
+    assert PyTypeVar("T", Int).is_subseteq(Int | String)
 
     with pytest.raises(TypeError):
         Tuple[PyVararg(Int)][Int, Float]
