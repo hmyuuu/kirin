@@ -407,7 +407,7 @@ class PyClass(PyType, Generic[Type], metaclass=PyClassMeta):
         return hash((PyClass, self.typ))
 
     def print_impl(self, printer: Printer) -> None:
-        printer.show_dialect_path(self, self.typ.__name__, prefix="!")
+        printer.show_dialect_path(self, "class." + self.typ.__name__, prefix="!")
 
 
 @dialect.register
