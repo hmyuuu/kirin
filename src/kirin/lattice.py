@@ -99,7 +99,8 @@ class UnionMeta(LatticeMeta):
 
         if len(params) == 1:
             return params[0]
-        return super(UnionMeta, self).__call__(typ, *params)
+
+        return super(UnionMeta, self).__call__(*params)
 
 
 class EmptyLattice(Lattice["EmptyLattice"], metaclass=SingletonMeta):
