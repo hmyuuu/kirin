@@ -188,6 +188,8 @@ class TypeInfer(DialectInterpreter):
         # TODO: replace this when we can multiple dispatch
         if obj.is_subseteq(types.Tuple):
             return self.getitem_tuple(interp, stmt, obj, index)
+        elif isinstance(obj, types.PyClass):
+            return ResultValue(types.Any)
         elif obj.is_subseteq(types.List):
             if index.is_subseteq(types.Int):
                 return ResultValue(obj.vars[0])
