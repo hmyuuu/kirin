@@ -202,13 +202,18 @@ class TypeInfer(DialectInterpreter):
         self,
         interp,
         stmt: py.GetItem,
-        obj: types.PyGeneric,
+        obj: types.PyType,
         index: types.PyType,
     ):
-        if index.is_subseteq(types.Int):
-            return self.getitem_tuple_index(interp, stmt, obj, index)
-        elif index.is_subseteq(types.Slice):
-            return self.getitem_tuple_slice(interp, stmt, obj, index)
+        if isinstance(obj, types.PyGeneric):
+            if index.is_subseteq(types.Int):
+                return self.getitem_tuple_index(interp, stmt, obj, index)
+            elif index.is_subseteq(types.Slice):
+                return self.getitem_tuple_slice(interp, stmt, obj, index)
+            else:
+                return ResultValue(types.Bottom)
+        elif isinstance(obj, types.PyClass):
+            return ResultValue(types.Any)
         else:
             return ResultValue(types.Bottom)
 
