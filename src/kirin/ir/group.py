@@ -185,7 +185,12 @@ class DialectGroup(Generic[PassParams]):
                 raise ValueError("Cannot compile lambda functions")
 
             frame = inspect.currentframe()
-            if frame and py_func.__name__ in frame.f_back.f_back.f_locals:
+            if (
+                frame
+                and frame.f_back is not None
+                and frame.f_back.f_back is not None
+                and py_func.__name__ in frame.f_back.f_back.f_locals
+            ):
                 raise CompilerError(
                     f"overwriting function definition of `{py_func.__name__}`"
                 )
