@@ -90,14 +90,13 @@ class TypeInfer(DialectInterpreter):
 
     @impl(Scan)
     def scan(self, interp: TypeInference, stmt: Scan, values: tuple[types.PyType, ...]):
-        fn = values[0]
         init = values[1]
         coll = values[2]
 
-        if not isinstance(fn, types.PyConst):
+        if not isinstance(values[0], types.PyConst):
             return ResultValue(types.Tuple[init, types.List])
 
-        fn: ir.Method = fn.data
+        fn: ir.Method = values[0].data
         if isinstance(coll, types.PyGeneric) and coll.is_subseteq(types.List):
             _ret = interp.eval(fn, (init, coll.vars[0])).to_result()
             if isinstance(_ret, ResultValue) and len(_ret.values) == 1:
