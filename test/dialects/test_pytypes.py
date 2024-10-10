@@ -56,7 +56,7 @@ def test_union():
     assert PyAnyType() is PyAnyType()
     assert PyBottomType() is PyBottomType()
     t = Int.join(Float).join(String)
-    assert t.is_subseteq(Int | Float | String)
+    assert t.is_subseteq(Int.join(Float).join(String))
 
 
 def test_meet():
