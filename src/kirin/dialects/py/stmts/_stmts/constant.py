@@ -4,6 +4,7 @@ from kirin.decl import info, statement
 from kirin.dialects.py import data, types
 from kirin.dialects.py.stmts.dialect import dialect
 from kirin.ir import ConstantLike, Pure, ResultValue, Statement
+from kirin.print import Printer
 
 T = TypeVar("T", covariant=True)
 
@@ -23,3 +24,11 @@ class Constant(Statement, Generic[T]):
             properties={"value": value},
             result_types=(types.PyConst(value.data, value.type),),
         )
+
+    def print_impl(self, printer: Printer) -> None:
+        printer.print_name(self)
+        printer.plain_print(" ")
+        printer.plain_print(repr(self.value))
+        with printer.rich(style=printer.color.comment):
+            printer.plain_print(" : ")
+            printer.print(self.result.type)
