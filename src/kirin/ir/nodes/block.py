@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Iterable, Iterator
 
 from typing_extensions import Self
 
+from kirin.exceptions import VerificationError
 from kirin.ir.attrs import TypeAttribute
 from kirin.ir.derive import derive, field
 from kirin.ir.nodes.base import IRNode
@@ -300,3 +301,16 @@ class Block(IRNode["Region"]):
                     printer.plain_print(" " * printer.state.result_width, "   ")
                 with printer.indent(printer.state.result_width + 3, mark=True):
                     printer.print(stmt)
+
+    def typecheck(self) -> None:
+        for stmt in self.stmts:
+            stmt.typecheck()
+
+    def verify(self) -> None:
+        from kirin.ir.nodes.stmt import Region
+
+        if not isinstance(self.parent, Region):
+            raise VerificationError(self, "Parent is not a region")
+
+        for stmt in self.stmts:
+            stmt.verify()
