@@ -16,7 +16,7 @@ WorkListType = TypeVar("WorkListType", bound=WorkList[Successor])
 
 @dataclass
 class AbstractFrame(Frame[ResultType]):
-    worklist: WorkList[Successor] = field(default_factory=WorkList)
+    worklist: WorkList[Successor[ResultType]] = field(default_factory=WorkList)
 
 
 AbstractFrameType = TypeVar("AbstractFrameType", bound=AbstractFrame)

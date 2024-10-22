@@ -12,7 +12,7 @@ from kirin.worklist import WorkList
 
 
 @dataclass
-class CFGWorkList(WorkList[Successor]):
+class CFGWorkList(WorkList[Successor[EmptyLattice]]):
     current: Block | None = None
     visited: dict[Block, set[Block]] = field(default_factory=dict)
 
