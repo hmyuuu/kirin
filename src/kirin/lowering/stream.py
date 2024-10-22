@@ -1,14 +1,15 @@
-import ast
 from dataclasses import dataclass, field
-from typing import Sequence
+from typing import Generic, Sequence, TypeVar
+
+Stmt = TypeVar("Stmt")
 
 
 @dataclass
-class StmtStream:
-    stmts: list[ast.stmt] = field(default_factory=list)
+class StmtStream(Generic[Stmt]):
+    stmts: list[Stmt] = field(default_factory=list)
     cursor: int = 0
 
-    def __init__(self, stmts: Sequence[ast.stmt], cursor: int = 0):
+    def __init__(self, stmts: Sequence[Stmt], cursor: int = 0):
         self.stmts = list(stmts)
         self.cursor = cursor
 

@@ -17,7 +17,7 @@ CallbackFn = Callable[["Frame", SSAValue], SSAValue]
 class Frame:
     state: "LoweringState"
     parent: Optional["Frame"]
-    stream: StmtStream
+    stream: StmtStream[ast.stmt]
 
     current_region: Region
     """current region being lowered
@@ -49,7 +49,7 @@ class Frame:
     @classmethod
     def from_stmts(
         cls,
-        stmts: Sequence[ast.stmt] | StmtStream,
+        stmts: Sequence[ast.stmt] | StmtStream[ast.stmt],
         state: "LoweringState",
         parent: Optional["Frame"] = None,
         region: Optional[Region] = None,
