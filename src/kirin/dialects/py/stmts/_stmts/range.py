@@ -18,20 +18,20 @@ class Range(Statement):
     result: ResultValue = info.result(types.PyClass(range))
 
     @classmethod
-    def from_python_call(cls, ctx: LoweringState, node: ast.Call) -> Result:
+    def from_python_call(cls, state: LoweringState, node: ast.Call) -> Result:
         if len(node.args) == 1:
-            start = ctx.visit(ast.Constant(0)).expect_one()
-            stop = ctx.visit(node.args[0]).expect_one()
-            step = ctx.visit(ast.Constant(1)).expect_one()
+            start = state.visit(ast.Constant(0)).expect_one()
+            stop = state.visit(node.args[0]).expect_one()
+            step = state.visit(ast.Constant(1)).expect_one()
         elif len(node.args) == 2:
-            start = ctx.visit(node.args[0]).expect_one()
-            stop = ctx.visit(node.args[1]).expect_one()
-            step = ctx.visit(ast.Constant(1)).expect_one()
+            start = state.visit(node.args[0]).expect_one()
+            stop = state.visit(node.args[1]).expect_one()
+            step = state.visit(ast.Constant(1)).expect_one()
         elif len(node.args) == 3:
-            start = ctx.visit(node.args[0]).expect_one()
-            stop = ctx.visit(node.args[1]).expect_one()
-            step = ctx.visit(node.args[2]).expect_one()
+            start = state.visit(node.args[0]).expect_one()
+            stop = state.visit(node.args[1]).expect_one()
+            step = state.visit(node.args[2]).expect_one()
         else:
             raise DialectLoweringError("range() takes 1-3 arguments")
 
-        return Result(ctx.append_stmt(cls(start, stop, step)))
+        return Result(state.append_stmt(cls(start, stop, step)))

@@ -489,7 +489,7 @@ class Statement(IRNode["Block"]):
         return None
 
     @classmethod
-    def from_python_call(cls, ctx: LoweringState, node: ast.Call) -> Result:
+    def from_python_call(cls, state: LoweringState, node: ast.Call) -> Result:
         raise NotImplementedError
 
     def expect_one_result(self) -> ResultValue:

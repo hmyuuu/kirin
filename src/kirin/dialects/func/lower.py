@@ -174,12 +174,12 @@ class FuncLowering(FromPythonAST):
             raise DialectLoweringError("positional-only arguments are not supported")
 
     @staticmethod
-    def get_hint(ctx: LoweringState, node: ast.expr | None):
+    def get_hint(state: LoweringState, node: ast.expr | None):
         if node is None:
             return types.Any
 
         try:
-            t = ctx.get_global(node).unwrap()
+            t = state.get_global(node).unwrap()
             return types.hint2type(t)
         except:  # noqa: E722
             raise DialectLoweringError(f"expect a type hint, got {ast.unparse(node)}")
