@@ -1,5 +1,5 @@
 from kirin.dialects.func.dialect import dialect
-from kirin.dialects.func.stmts import Call, GetField, Lambda, Return
+from kirin.dialects.func.stmts import Call, ConstantMethod, GetField, Lambda, Return
 from kirin.exceptions import InterpreterError
 from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, concrete, impl
 from kirin.ir import Method
@@ -7,6 +7,12 @@ from kirin.ir import Method
 
 @dialect.register
 class Interpreter(DialectInterpreter):
+
+    @impl(ConstantMethod)
+    def constant(
+        self, interp: concrete.Interpreter, stmt: ConstantMethod, values: tuple
+    ):
+        return ResultValue(stmt.value)
 
     @impl(Call)
     def call(self, interp: concrete.Interpreter, stmt: Call, values: tuple):

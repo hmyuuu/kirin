@@ -6,10 +6,12 @@ from kirin.dialects.func.dialect import dialect
 from kirin.dialects.py import data
 from kirin.ir import (
     CallableStmtInterface,
+    ConstantLike,
     HasParent,
     HasSignature,
     IsolatedFromAbove,
     IsTerminator,
+    Method,
     Pure,
     Region,
     ResultValue,
@@ -26,6 +28,19 @@ class FuncOpCallableInterface(CallableStmtInterface["Function"]):
     @classmethod
     def get_callable_region(cls, stmt: "Function") -> Region:
         return stmt.body
+
+
+@statement(dialect=dialect)
+class ConstantMethod(Statement):
+    name = "constant"
+    traits = frozenset({Pure(), ConstantLike()})
+    value: Method = info.attribute(property=True)
+    result: ResultValue = info.result(MethodType)
+
+    def print_impl(self, printer: Printer) -> None:
+        printer.print_name(self)
+        printer.plain_print(" ")
+        printer.print(self.value)
 
 
 @statement(dialect=dialect)

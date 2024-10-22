@@ -123,10 +123,9 @@ class LoweringState(ast.NodeVisitor):
 
         global_callee = global_callee_result.unwrap()
         if isinstance(global_callee, Method):
-            callee = self.visit(ast.Constant(global_callee)).expect_one()
             if "Call_global_method" in self.registry:
                 return self.registry["Call_global_method"].lower_Call_global_method(
-                    self, global_callee, callee, node
+                    self, global_callee, node
                 )
             raise DialectLoweringError("`lower_Call_global_method` not implemented")
         elif inspect.isclass(global_callee):

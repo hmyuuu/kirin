@@ -83,7 +83,7 @@ def test_func_call():
     stmt = code.body.blocks[0].stmts.at(1)
     assert isinstance(stmt, func.Call)
     assert isinstance(stmt.callee, ir.ResultValue)
-    assert isinstance(stmt.callee.stmt, stmts.Constant)
+    assert isinstance(stmt.callee.stmt, func.ConstantMethod)
     assert stmt.callee.stmt.value is callee
 
 

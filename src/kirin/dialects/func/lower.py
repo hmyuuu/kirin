@@ -3,7 +3,14 @@ import ast
 from kirin import ir
 from kirin.dialects.func.attrs import Signature
 from kirin.dialects.func.dialect import dialect
-from kirin.dialects.func.stmts import Call, Function, GetField, Lambda, Return
+from kirin.dialects.func.stmts import (
+    Call,
+    ConstantMethod,
+    Function,
+    GetField,
+    Lambda,
+    Return,
+)
 from kirin.dialects.py import types
 from kirin.exceptions import DialectLoweringError
 from kirin.lowering import Frame, FromPythonAST, LoweringState, Result
@@ -21,12 +28,14 @@ class FuncLowering(FromPythonAST):
         self,
         state: LoweringState,
         method: ir.Method,
-        callee: ir.SSAValue,
         node: ast.Call,
     ) -> Result:
         return_type = method.return_type or types.Any
         return self.__lower_Call_with_callee_return_type(
-            state, callee, return_type, node
+            state,
+            state.append_stmt(ConstantMethod(value=method)).result,
+            return_type,
+            node,
         )
 
     def __lower_Call_with_callee_return_type(
