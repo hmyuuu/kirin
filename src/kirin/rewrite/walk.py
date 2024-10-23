@@ -72,7 +72,7 @@ class Walk(RewriteRule):
 
     def populate_worklist_Block(self, node: Block) -> None:
         self.worklist.push(node)
-        stmt = node.first_stmt
+        stmt = node.last_stmt
         while stmt is not None:
             self.populate_worklist(stmt)
-            stmt = stmt.next_stmt
+            stmt = stmt.prev_stmt
