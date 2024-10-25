@@ -218,8 +218,11 @@ def test_intraprocedure_side_effect():
         DummyStatement()
 
     @basic_no_opt.add(dummy_dialect)
-    def side_effect_intraprocedure():
-        side_effect_return_none()
+    def side_effect_intraprocedure(cond: bool):
+        if cond:
+            return side_effect_return_none()
+        else:
+            return
 
     constprop = ConstProp(basic_no_opt.add(dummy_dialect))
     result = constprop.eval(
