@@ -1,5 +1,5 @@
 from kirin.dialects.func.dialect import dialect
-from kirin.dialects.func.stmts import Call, ConstantMethod, GetField, Lambda, Return
+from kirin.dialects.func.stmts import Call, GetField, Invoke, Lambda, Return
 from kirin.exceptions import InterpreterError
 from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, concrete, impl
 from kirin.ir import Method
@@ -8,25 +8,17 @@ from kirin.ir import Method
 @dialect.register
 class Interpreter(DialectInterpreter):
 
-    @impl(ConstantMethod)
-    def constant(
-        self, interp: concrete.Interpreter, stmt: ConstantMethod, values: tuple
-    ):
-        return ResultValue(stmt.value)
-
     @impl(Call)
     def call(self, interp: concrete.Interpreter, stmt: Call, values: tuple):
-        # NOTE: support kwargs after Call stmt stores the key names
-        n_total = len(values)
-        if stmt.kwargs.data:
-            kwargs = dict(
-                zip(stmt.kwargs.data, values[n_total - len(stmt.kwargs.data) :])
-            )
-        else:
-            kwargs = None
-
+        mt = values[0]
         return interp.eval(
-            values[0], values[1 : n_total - len(stmt.kwargs.data)], kwargs
+            mt, interp.permute_values(mt, values[1:], stmt.kwargs)
+        ).to_result()
+
+    @impl(Invoke)
+    def invoke(self, interp: concrete.Interpreter, stmt: Invoke, values: tuple):
+        return interp.eval(
+            stmt.callee, interp.permute_values(stmt.callee, values, stmt.kwargs)
         ).to_result()
 
     @impl(Return)
