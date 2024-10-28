@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Iterable
 
 from kirin import ir
-from kirin.analysis.dataflow.forward import ForwardDataFlowAnalysis
+from kirin.analysis.dataflow.forward import ForwardExtra
 from kirin.exceptions import InterpreterError
 from kirin.interp import Interpreter, value as interp_value
 from kirin.interp.base import InterpResult
@@ -141,7 +141,12 @@ class NotConst(ConstPropLattice, metaclass=SingletonMeta):
         return self.is_equal(other)
 
 
-class ConstProp(ForwardDataFlowAnalysis[ConstPropLattice]):
+@dataclass
+class ConstPropFrameInfo:
+    not_pure: bool = False
+
+
+class ConstProp(ForwardExtra[ConstPropLattice, ConstPropFrameInfo]):
     keys = ["constprop", "empty"]
     interp: Interpreter
 
@@ -208,7 +213,9 @@ class ConstProp(ForwardDataFlowAnalysis[ConstPropLattice]):
             frame = self.state.current_frame()
             for result in stmt.results:
                 frame.entries[result] = NotPure()
-            return interp_value.ReturnValue(NotPure())
+
+            frame.extra = ConstPropFrameInfo(not_pure=True)
+            return interp_value.ResultValue(NotPure())
         else:
             # fallback to NotConst for other pure statements
             return interp_value.ResultValue(NotConst())
