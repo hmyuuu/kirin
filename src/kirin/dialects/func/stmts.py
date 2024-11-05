@@ -47,7 +47,7 @@ def _print_invoke_or_call(
 
     printer.plain_print("(")
     printer.print_seq(positional)
-    if kwargs:
+    if kwargs and positional:
         printer.plain_print(", ")
     printer.print_mapping(kwargs, delim=", ")
     printer.plain_print(")")
