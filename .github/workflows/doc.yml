@@ -1,0 +1,45 @@
+name: Documentation (preview)
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  documentation:
+    name: Deploy preview documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up rye
+        uses: eifinger/setup-rye@v3
+      - name: Update Rye
+        run: |
+          rye self update
+      - name: Sync dependencies using rye
+        run: |
+          rye config --set-bool behavior.use-uv=true
+          rye pin 3.10
+          rye sync
+      - name: Set up build cache
+        uses: actions/cache@v4
+        id: cache
+        with:
+          key: mkdocs-material-${{ github.ref }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - name: Depoly documentation
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          rye run mkdocs build
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: ./site
