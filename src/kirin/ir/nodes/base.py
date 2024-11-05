@@ -88,13 +88,11 @@ class IRNode(Generic[ParentType], ABC, Printable):
     def print_impl(self, printer: Printer) -> None: ...
 
     @abstractmethod
-    def typecheck(self) -> None: ...
-
-    """check if types are correct.
-    """
+    def typecheck(self) -> None:
+        """check if types are correct."""
+        ...
 
     @abstractmethod
-    def verify(self) -> None: ...
-
-    """run mandatory validation checks. This is not same as typecheck, which may be optional.
-    """
+    def verify(self) -> None:
+        """run mandatory validation checks. This is not same as typecheck, which may be optional."""
+        ...
