@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
 
 from typing_extensions import Self
 
 from kirin.ir.attrs import AnyType, TypeAttribute
-from kirin.ir.derive import derive, field
 from kirin.print import Printable, Printer
 
 if TYPE_CHECKING:
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from kirin.ir.use import Use
 
 
-@derive(id_hash=True, init=True)
+@dataclass
 class SSAValue(ABC, Printable):
     type: TypeAttribute = field(default_factory=AnyType, init=False, repr=True)
     uses: set[Use] = field(init=False, default_factory=set, repr=False)
@@ -41,6 +41,9 @@ class SSAValue(ABC, Printable):
         if self.name:
             return f"{type(self).__name__}({self.name})"
         return f"{type(self).__name__}({id(self)})"
+
+    def __hash__(self) -> int:
+        return id(self)
 
     def add_use(self, use: Use) -> Self:
         self.uses.add(use)
@@ -72,7 +75,7 @@ class SSAValue(ABC, Printable):
         printer.plain_print(printer.state.ssa_id[self])
 
 
-@derive(id_hash=True)
+@dataclass
 class ResultValue(SSAValue):
     stmt: Statement = field(init=False)
     index: int = field(init=False)
@@ -92,6 +95,9 @@ class ResultValue(SSAValue):
     def owner(self) -> Statement:
         return self.stmt
 
+    def __hash__(self) -> int:
+        return id(self)
+
     def __repr__(self) -> str:
         if self.type.is_top():
             type_str = ""
@@ -105,7 +111,7 @@ class ResultValue(SSAValue):
         return f"<{type(self).__name__}{type_str} stmt: {self.stmt.name}, uses: {len(self.uses)}>"
 
 
-@derive(id_hash=True)
+@dataclass
 class BlockArgument(SSAValue):
     block: Block = field(init=False)
     index: int = field(init=False)
@@ -122,6 +128,9 @@ class BlockArgument(SSAValue):
     def owner(self) -> Block:
         return self.block
 
+    def __hash__(self) -> int:
+        return id(self)
+
     def __repr__(self) -> str:
         if self.name:
             return f"<{type(self).__name__}[{self.type}] {self.name}, uses: {len(self.uses)}>"
@@ -135,7 +144,7 @@ class BlockArgument(SSAValue):
                 printer.print(self.type)
 
 
-@derive(id_hash=True)
+@dataclass
 class DeletedSSAValue(SSAValue):
     value: SSAValue = field(init=False)
 
@@ -143,6 +152,9 @@ class DeletedSSAValue(SSAValue):
         super().__init__()
         self.value = value
         self.type = value.type
+
+    def __hash__(self) -> int:
+        return id(self)
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}[{self.type}] value: {self.value}, uses: {len(self.uses)}>"
@@ -152,13 +164,16 @@ class DeletedSSAValue(SSAValue):
         return self.value.owner
 
 
-@derive(id_hash=True)
+@dataclass
 class TestValue(SSAValue):
     """Test SSAValue for testing IR construction."""
 
     def __init__(self, type: TypeAttribute = AnyType()) -> None:
         super().__init__()
         self.type = type
+
+    def __hash__(self) -> int:
+        return id(self)
 
     @property
     def owner(self) -> Statement | Block:

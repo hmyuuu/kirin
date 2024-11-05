@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterable, Iterator
 
 from typing_extensions import Self
 
 from kirin.exceptions import VerificationError
-from kirin.ir.derive import derive, field
 from kirin.ir.nodes.base import IRNode
 from kirin.ir.nodes.block import Block
 from kirin.ir.nodes.view import MutableSequenceView
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from kirin.print import Printer
 
 
-@derive(init=True, repr=True)
+@dataclass
 class RegionBlocks(MutableSequenceView[list[Block], "Region", Block]):
 
     def __setitem__(
@@ -52,7 +52,7 @@ class RegionBlocks(MutableSequenceView[list[Block], "Region", Block]):
         self.field.append(value)
 
 
-@derive(id_hash=True)
+@dataclass
 class Region(IRNode["Statement"]):
     _blocks: list[Block] = field(default_factory=list, repr=False)
     _block_idx: dict[Block, int] = field(default_factory=dict, repr=False)
@@ -75,6 +75,9 @@ class Region(IRNode["Statement"]):
         if block.parent is not self:
             raise ValueError("Block does not belong to the region")
         return self._block_idx[block]
+
+    def __hash__(self) -> int:
+        return id(self)
 
     def clone(self, ssamap: dict[SSAValue, SSAValue] | None = None) -> Region:
         """Clone a region. This will clone all blocks and statements in the region.
