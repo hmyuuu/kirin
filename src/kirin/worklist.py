@@ -22,8 +22,7 @@ class WorkList(Generic[ElemType]):
         self._stack.append(item)
 
     def append(self, items: Iterable[ElemType]) -> None:
-        for item in items:
-            self.push(item)
+        self._stack.extend(items)
 
     def pop(self) -> ElemType | None:
         if self._stack:
