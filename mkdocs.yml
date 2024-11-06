@@ -6,14 +6,26 @@ repo_url: https://github.com/QuEraComputing/kirin
 # Page tree
 nav:
   - Home:
-    - index.md
-  #- API Reference: reference/kirin
-
+      - index.md
+  - API Reference:
+    - IR:
+      - Statement: api/stmt.md
 
 theme:
   name: material
   palette:
-    - primary: custom
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
     - announce.dismiss
     - content.action.view
@@ -40,12 +52,29 @@ plugins:
       handlers:
         python:
           paths: [src]
-  - search
+          options:
+            show_if_no_docstring: false
+            separate_signature: true
+            merge_init_into_class: true
+            docstring_options:
+              ignore_init_summary: true
+  - search:
+      separator: '[\s\-,:!=\[\: )"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - gen-files:
       scripts:
-      - docs/scripts/gen_ref_nav.py
+        - docs/scripts/gen_ref_nav.py
   - literate-nav:
       nav_file: SUMMARY.txt
+  - minify:
+      minify_html: true
 
 extra_css:
   - stylesheets/extra.css
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
