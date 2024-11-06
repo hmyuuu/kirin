@@ -20,6 +20,7 @@ from kirin.ir.nodes import (
 )
 from kirin.ir.ssa import (
     BlockArgument as BlockArgument,
+    DeletedSSAValue as DeletedSSAValue,
     ResultValue as ResultValue,
     SSAValue as SSAValue,
     TestValue as TestValue,
