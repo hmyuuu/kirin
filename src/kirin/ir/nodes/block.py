@@ -40,7 +40,7 @@ class BlockArguments(MutableSequenceView[tuple, "Block", BlockArgument]):
             name (str | None, optional): name of the argument. Defaults to None.
 
         Returns:
-            BlockArgument: The newly created BlockArgument.
+            BlockArgument: The newly created [`BlockArgument`](kirin.ir.BlockArgument).
 
         """
         new_arg = BlockArgument(self.node, len(self.node._args), typ)
