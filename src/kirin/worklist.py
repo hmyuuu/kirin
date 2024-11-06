@@ -18,10 +18,10 @@ class WorkList(Generic[ElemType]):
     def is_empty(self) -> bool:
         return len(self._stack) == 0
 
-    def push(self, item: ElemType) -> None:
+    def append(self, item: ElemType) -> None:
         self._stack.append(item)
 
-    def append(self, items: Iterable[ElemType]) -> None:
+    def extend(self, items: Iterable[ElemType]) -> None:
         self._stack.extend(items)
 
     def pop(self) -> ElemType | None:

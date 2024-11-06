@@ -46,7 +46,7 @@ class CFG(Printable):
             neighbors = graph.setdefault(block, set())
             if block.last_stmt is not None:
                 neighbors.update(block.last_stmt.successors)
-                worklist.append(block.last_stmt.successors)
+                worklist.extend(block.last_stmt.successors)
 
             block = worklist.pop()
         return graph

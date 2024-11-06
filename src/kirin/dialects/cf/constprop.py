@@ -13,7 +13,7 @@ class DialectConstProp(DialectInterpreter):
 
     @impl(Branch)
     def branch(self, interp: ConstProp, stmt: Branch, values: tuple):
-        interp.state.current_frame().worklist.push(Successor(stmt.successor, *values))
+        interp.state.current_frame().worklist.append(Successor(stmt.successor, *values))
         return ResultValue()
 
     @impl(ConditionalBranch)
@@ -33,21 +33,21 @@ class DialectConstProp(DialectInterpreter):
                 stmt.then_successor, *frame.get_values(stmt.then_arguments)
             )
             if cond.data:
-                frame.worklist.push(then_successor)
+                frame.worklist.append(then_successor)
             else:
-                frame.worklist.push(else_successor)
+                frame.worklist.append(else_successor)
         else:
             frame.entries[stmt.cond] = Const(True)
             then_successor = Successor(
                 stmt.then_successor, *frame.get_values(stmt.then_arguments)
             )
-            frame.worklist.push(then_successor)
+            frame.worklist.append(then_successor)
 
             frame.entries[stmt.cond] = Const(False)
             else_successor = Successor(
                 stmt.else_successor, *frame.get_values(stmt.else_arguments)
             )
-            frame.worklist.push(else_successor)
+            frame.worklist.append(else_successor)
 
             frame.entries[stmt.cond] = cond
         return ResultValue()

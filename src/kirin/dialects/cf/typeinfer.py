@@ -15,7 +15,7 @@ class TypeInfer(DialectInterpreter):
     @impl(Branch)
     def branch(self, interp: TypeInference, stmt: Branch, values):
         frame = interp.state.current_frame()
-        frame.worklist.push(Successor(stmt.successor, *values))
+        frame.worklist.append(Successor(stmt.successor, *values))
         return ResultValue()
 
     @impl(ConditionalBranch)
@@ -23,10 +23,10 @@ class TypeInfer(DialectInterpreter):
         self, interp: TypeInference, stmt: ConditionalBranch, values
     ):
         frame = interp.state.current_frame()
-        frame.worklist.push(
+        frame.worklist.append(
             Successor(stmt.else_successor, *frame.get_values(stmt.else_arguments))
         )
-        frame.worklist.push(
+        frame.worklist.append(
             Successor(stmt.then_successor, *frame.get_values(stmt.then_arguments))
         )
         return ResultValue()

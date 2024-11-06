@@ -55,23 +55,23 @@ class Walk(RewriteRule):
 
     def populate_worklist_Statement(self, node: Statement) -> None:
         if self.region_first:
-            self.worklist.push(node)
+            self.worklist.append(node)
 
         if node.regions:
             for region in reversed(node.regions) if not self.reverse else node.regions:
                 self.populate_worklist(region)
 
         if not self.region_first:
-            self.worklist.push(node)
+            self.worklist.append(node)
 
     def populate_worklist_Region(self, node: Region) -> None:
-        self.worklist.push(node)
+        self.worklist.append(node)
         if node.blocks:
             for block in reversed(node.blocks) if not self.reverse else node.blocks:
                 self.populate_worklist(block)
 
     def populate_worklist_Block(self, node: Block) -> None:
-        self.worklist.push(node)
+        self.worklist.append(node)
         stmt = node.last_stmt
         while stmt is not None:
             self.populate_worklist(stmt)

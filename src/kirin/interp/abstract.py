@@ -80,7 +80,7 @@ class AbstractInterpreter(
         if not region.blocks:
             return InterpResult(result)
 
-        frame.worklist.push(Successor(region.blocks[0], *args))
+        frame.worklist.append(Successor(region.blocks[0], *args))
         while (succ := frame.worklist.pop()) is not None:
             self.prehook_succ(frame, succ)
             result = self.run_block(frame, succ).join(result)
