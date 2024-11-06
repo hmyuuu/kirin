@@ -7,10 +7,13 @@ LatticeParent = TypeVar("LatticeParent", bound="Lattice")
 
 
 class LatticeMeta(ABCMeta):
+    """Metaclass for lattices."""
+
     pass
 
 
 class Lattice(ABC, Generic[LatticeParent], metaclass=LatticeMeta):
+    """Abstract base class for lattices."""
 
     @property
     @abstractmethod
@@ -56,7 +59,11 @@ class Lattice(ABC, Generic[LatticeParent], metaclass=LatticeMeta):
 
 
 class SingletonMeta(LatticeMeta):
-    """See https://stackoverflow.com/questions/674304/why-is-init-always-called-after-new/8665179#8665179"""
+    """
+    Singleton metaclass for lattices. It ensures that only one instance of a lattice is created.
+
+    See https://stackoverflow.com/questions/674304/why-is-init-always-called-after-new/8665179#8665179
+    """
 
     def __init__(cls, name, bases, attrs):
         super().__init__(name, bases, attrs)
@@ -108,6 +115,7 @@ class UnionMeta(LatticeMeta):
 
 
 class EmptyLattice(Lattice["EmptyLattice"], metaclass=SingletonMeta):
+    """Empty lattice."""
 
     @property
     def parent_type(self) -> type[EmptyLattice]:
