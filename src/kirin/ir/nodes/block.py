@@ -316,7 +316,7 @@ class Block(IRNode["Region"]):
             stmt.drop_all_references()
 
     def detach(self) -> None:
-        """Detach this Block from the IR tree graph.
+        """Detach this Block from the IR.
 
         Note:
             Detach only detach the Block from the IR graph. It does not remove uses that reference the Block.
