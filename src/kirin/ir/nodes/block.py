@@ -62,7 +62,7 @@ class BlockArguments(MutableSequenceView[tuple, "Block", BlockArgument]):
         Args:
             idx (int): Insert location index.
             typ (TypeAttribute): The type of the argument.
-            name (str | None, optional): Name of the argument. Defaults to None.
+            name (str | None, optional): Name of the argument. Defaults to `None`.
 
         Returns:
             BlockArgument: The newly created BlockArgument.
