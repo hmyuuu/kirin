@@ -32,8 +32,8 @@ class BlockArguments(MutableSequenceView[tuple, "Block", BlockArgument]):
         """Append a new argument to the Block that this View reference to.
 
         Description:
-            This method will create a new BlockArgument and append it to the argument list
-            of the reference Block.
+            This method will create a new [`BlockArgument`](kirin.ir.BlockArgument) and append it to the argument list
+            of the reference `Block`.
 
         Args:
             typ (TypeAttribute): The type of the argument.
