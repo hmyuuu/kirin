@@ -56,7 +56,7 @@ class BlockArguments(MutableSequenceView[tuple, "Block", BlockArgument]):
         """Insert a new argument to the Block that this View reference to.
 
         Description:
-            This method will create a new BlockArgument and insert it to the argument list
+            This method will create a new `BlockArgument` and insert it to the argument list
             of the reference Block at the specified index
 
         Args:
