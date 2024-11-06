@@ -332,7 +332,7 @@ class Block(IRNode["Region"]):
         self.parent = None
 
     def delete(self, safe: bool = True) -> None:
-        """Delete the Block completely from the IR graph.
+        """Delete the Block completely from the IR.
 
         Note:
             This method will detach + remove references of the block.
