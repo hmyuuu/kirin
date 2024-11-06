@@ -37,7 +37,7 @@ class BlockArguments(MutableSequenceView[tuple, "Block", BlockArgument]):
 
         Args:
             typ (TypeAttribute): The type of the argument.
-            name (str | None, optional): name of the argument. Defaults to None.
+            name (str | None, optional): name of the argument. Defaults to `None`.
 
         Returns:
             BlockArgument: The newly created [`BlockArgument`](kirin.ir.BlockArgument).
