@@ -354,7 +354,7 @@ class Block(IRNode["Region"]):
 
         Args:
             other (Self): The other Block to compare with.
-            context (dict[IRNode  |  SSAValue, IRNode  |  SSAValue] | None, optional): [FIXME]. Defaults to None.
+            context (dict[IRNode  |  SSAValue, IRNode  |  SSAValue] | None, optional): A map of IRNode/SSAValue to hint that they are equivalent so the check will treat them as equivalent. Defaults to None.
 
         Returns:
             bool: True if the Block is structurally equal to the other Block.
@@ -389,7 +389,7 @@ class Block(IRNode["Region"]):
 
         Args:
             reverse (bool, optional): If walk in the reversed manner. Defaults to False.
-            region_first (bool, optional): [FIXME]. Defaults to False.
+            region_first (bool, optional): If the walk should go through the Statement first or the Region of a Statement first. Defaults to False.
 
         Yields:
             Iterator[Statement]: An iterator that yield Statements in the Block in the specified order.
