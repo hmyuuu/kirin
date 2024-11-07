@@ -34,7 +34,7 @@ class Registry:
     parent: "DialectGroup"
     """The parent dialect group."""
 
-    def lowering(self, keys: Iterable[str]):
+    def lowering(self, keys: Iterable[str]) -> dict[str, "FromPythonAST"]:
         """select the dialect lowering interpreters for the given key.
 
         Args:
@@ -95,7 +95,7 @@ class Registry:
                 raise KeyError(f"Interpreter of {dialect.name} not found for {msg}")
         return ret, fallback
 
-    def codegen(self, keys: Iterable[str]):
+    def codegen(self, keys: Iterable[str]) -> dict["CodegenSignature", "CodegenImpl"]:
         """select the dialect codegen for the given key.
 
         Args:
@@ -170,7 +170,7 @@ class DialectGroup(Generic[PassParams]):
     def map_module(dialect):
         """map the module to the dialect if it is a module.
         It assumes that the module has a `dialect` attribute
-        that is an instance of [`Dialect`](kirin.ir.Dialect).
+        that is an instance of [`Dialect`][kirin.ir.Dialect].
         """
         if isinstance(dialect, ModuleType):
             return getattr(dialect, "dialect")
@@ -202,7 +202,7 @@ class DialectGroup(Generic[PassParams]):
         )
 
     @property
-    def registry(self):
+    def registry(self) -> Registry:
         """return the registry for the dialect group. This
         returns a proxy object that can be used to select
         the lowering interpreters, interpreters, and codegen
