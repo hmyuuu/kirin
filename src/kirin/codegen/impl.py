@@ -81,7 +81,7 @@ def impl(
     Callable[["ImplFunction"], AttributeEmitDef]
     | Callable[[Union["ImplFunction", ImplDef]], ImplDef]
 ):
-    """Decorator to define an [`Codegen`][kirin.codegen.base.Codegen] implementation for a statement or attribute.
+    """Decorator to define an [`Codegen`][kirin.codegen.base.CodeGen] implementation for a statement or attribute.
 
     Args:
         stmt (_type_): The statement or attribute to define the implementation for.

@@ -287,7 +287,9 @@ class DialectGroup(Generic[PassParams]):
         return wrapper
 
 
-def dialect_group(dialects: Iterable[Union["Dialect", ModuleType]]):
+def dialect_group(
+    dialects: Iterable[Union["Dialect", ModuleType]]
+) -> Callable[[RunPassGen[PassParams]], DialectGroup[PassParams]]:
     """Create a dialect group from the given dialects based on the
     definition of `run_pass` function.
 

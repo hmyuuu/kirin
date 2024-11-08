@@ -10,6 +10,7 @@ ValueType = TypeVar("ValueType")
 
 @dataclass(init=False)
 class Result(ABC, Generic[ValueType]):
+    """Base class of interpretation results."""
 
     @abstractmethod
     def __len__(self) -> int: ...
@@ -17,12 +18,16 @@ class Result(ABC, Generic[ValueType]):
 
 @dataclass(init=False)
 class NoReturn(Result[ValueType]):
+    """No return value from a statement evaluation."""
+
     def __len__(self) -> int:
         return 0
 
 
 @dataclass(init=False)
 class ResultValue(Result[ValueType]):
+    """Result values from a statement evaluation."""
+
     values: Tuple
 
     def __init__(self, *values: ValueType):
@@ -34,6 +39,8 @@ class ResultValue(Result[ValueType]):
 
 @dataclass(init=False)
 class ReturnValue(Result[ValueType]):
+    """Return value from a statement evaluation."""
+
     result: ValueType
 
     def __init__(self, result: ValueType):
@@ -46,6 +53,8 @@ class ReturnValue(Result[ValueType]):
 
 @dataclass(init=False)
 class Successor(Result[ValueType]):
+    """Successor block from a statement evaluation."""
+
     block: Block
     block_args: Tuple[ValueType, ...]
 
@@ -63,6 +72,8 @@ class Successor(Result[ValueType]):
 
 @dataclass(init=False)
 class Err(Result[ValueType]):
+    """Error result from a statement evaluation."""
+
     exception: Exception
     frames: list[Frame]
 
@@ -78,6 +89,7 @@ class Err(Result[ValueType]):
         return f"Err({self.exception.__class__.__name__}: {self.exception})"
 
     def print_stack(self):
+        """Print the stack trace of the error."""
         top_method_code = self.frames[0].method.code
         if (call_trait := top_method_code.get_trait(CallableStmtInterface)) is None:
             raise ValueError(f"Method code {top_method_code} is not callable")
@@ -105,4 +117,5 @@ class Err(Result[ValueType]):
         )
 
     def panic(self):
+        """Raise the error."""
         raise self.exception
