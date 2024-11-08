@@ -26,7 +26,20 @@ if TYPE_CHECKING:
 
 @dataclass
 class ArgumentList(MutableSequenceView[tuple, "Statement", SSAValue], Printable):
+    """A View object that contains a list of Arguemnts of a Statement.
+
+    Description:
+        This is a proxy object that provide safe API to manipulate the arguemnts of a statement.
+
+    """
+
     def set_item(self, idx: int, value: SSAValue) -> None:
+        """Set the argument SSAVAlue at the specified index.
+
+        Args:
+            idx (int): The index of the item to set.
+            value (SSAValue): The value to set.
+        """
         args = self.field
         args[idx].remove_use(Use(self.node, idx))
         value.add_use(Use(self.node, idx))
@@ -35,6 +48,12 @@ class ArgumentList(MutableSequenceView[tuple, "Statement", SSAValue], Printable)
         self.field = new_args
 
     def insert(self, idx: int, value: SSAValue) -> None:
+        """Insert the argument SSAValue at the specified index.
+
+        Args:
+            idx (int): The index to insert the value.
+            value (SSAValue): The value to insert.
+        """
         args = self.field
         value.add_use(Use(self.node, idx))
         new_args = (*args[:idx], value, *args[idx:])
@@ -47,6 +66,12 @@ class ArgumentList(MutableSequenceView[tuple, "Statement", SSAValue], Printable)
 
 @dataclass
 class ResultList(MutableSequenceView[list, "Statement", ResultValue]):
+    """A View object that contains a list of ResultValue of a Statement.
+
+    Description:
+        This is a proxy object that provide safe API to manipulate the result values of a statement
+
+    """
 
     def __setitem__(
         self, idx: int | slice, value: ResultValue | Sequence[ResultValue]
@@ -55,6 +80,11 @@ class ResultList(MutableSequenceView[list, "Statement", ResultValue]):
 
     @property
     def types(self) -> Sequence[TypeAttribute]:
+        """Get the result types of the Statement.
+
+        Returns:
+            Sequence[TypeAttribute]: type of each result value.
+        """
         return [result.type for result in self.field]
 
 
@@ -172,6 +202,14 @@ class Statement(IRNode["Block"]):
         Args:
             stmt (Statement): Input Statement.
 
+        Example:
+            The following example demonstrates how to insert a Statement after another Statement.
+            After `insert_after` is called, `stmt1` will be inserted after `stmt2`, which appears in IR in the order (stmt2 -> stmt1)
+            ```python
+            stmt1 = Statement()
+            stmt2 = Statement()
+            stmt1.insert_after(stmt2)
+            ```
         """
         if self._next_stmt is not None and self._prev_stmt is not None:
             raise ValueError(
@@ -199,6 +237,14 @@ class Statement(IRNode["Block"]):
         Args:
             stmt (Statement): Input Statement.
 
+        Example:
+            The following example demonstrates how to insert a Statement before another Statement.
+            After `insert_before` is called, `stmt1` will be inserted before `stmt2`, which appears in IR in the order (stmt1 -> stmt2)
+            ```python
+            stmt1 = Statement()
+            stmt2 = Statement()
+            stmt1.insert_before(stmt2)
+            ```
         """
         if self._next_stmt is not None and self._prev_stmt is not None:
             raise ValueError(
@@ -276,6 +322,7 @@ class Statement(IRNode["Block"]):
 
     @regions.setter
     def regions(self, regions: list[Region]) -> None:
+        """Set the regions of the Statement."""
         for region in self._regions:
             region._parent = None
         for region in regions:
@@ -283,6 +330,7 @@ class Statement(IRNode["Block"]):
         self._regions = regions
 
     def drop_all_references(self) -> None:
+        """Remove all the dependency that reference/uses this Statement."""
         self.parent = None
         for idx, arg in enumerate(self._args):
             arg.remove_use(Use(self, idx))
@@ -290,6 +338,14 @@ class Statement(IRNode["Block"]):
             region.drop_all_references()
 
     def delete(self, safe: bool = True) -> None:
+        """Delete the Statement completely from the IR graph.
+
+        Note:
+            This method will detach + remove references of the Statement.
+
+        Args:
+            safe (bool, optional): If True, raise error if there is anything that still reference components in the Statement. Defaults to True.
+        """
         self.detach()
         self.drop_all_references()
         for result in self._results:
@@ -348,7 +404,19 @@ class Statement(IRNode["Block"]):
         source: SourceInfo | None = None,
     ) -> None:
         super().__init__()
+        """Initialize the Statement.
 
+        Args:
+            arsg (Sequence[SSAValue], optional): The arguments of the Statement. Defaults to ().
+            regions (Sequence[Region], optional): The regions where the Statement belong to. Defaults to ().
+            successors (Sequence[Block], optional): The successors of the Statement. Defaults to ().
+            attributes (Mapping[str, Attribute], optional): The attributes of the Statement. Defaults to {}.
+            results (Sequence[ResultValue], optional): The result values of the Statement. Defaults to ().
+            result_types (Sequence[TypeAttribute], optional): The result types of the Statement. Defaults to ().
+            args_slice (Mapping[str, int | slice], optional): The arguments slice of the Statement. Defaults to {}.
+            source (SourceInfo | None, optional): The source information of the Statement for debugging/stacktracing. Defaults to None.
+
+        """
         self._args = ()
         self._regions = []
         self._name_args_slice = dict(args_slice)
@@ -413,6 +481,16 @@ class Statement(IRNode["Block"]):
         region_first: bool = False,
         include_self: bool = True,
     ) -> Iterator[Statement]:
+        """Traversal the Statements of Regions.
+
+        Args:
+            reverse (bool, optional): If walk in the reversed manner. Defaults to False.
+            region_first (bool, optional): If the walk should go through the Statement first or the Region of a Statement first. Defaults to False.
+            include_self (bool, optional): If the walk should include the Statement itself. Defaults to True.
+
+        Yields:
+            Iterator[Statement]: An iterator that yield Statements of Blocks in the Region, in the specified order.
+        """
         if include_self and not region_first:
             yield self
 
@@ -427,6 +505,15 @@ class Statement(IRNode["Block"]):
         other: Self,
         context: dict[IRNode | SSAValue, IRNode | SSAValue] | None = None,
     ) -> bool:
+        """Check if the Statement is structurally equal to another Statement.
+
+        Args:
+            other (Self): The other Statelemt to compare with.
+            context (dict[IRNode  |  SSAValue, IRNode  |  SSAValue] | None, optional): A map of IRNode/SSAValue to hint that they are equivalent so the check will treat them as equivalent. Defaults to None.
+
+        Returns:
+            bool: True if the IRNode is structurally equal to the other.
+        """
         if context is None:
             context = {}
 
@@ -540,10 +627,26 @@ class Statement(IRNode["Block"]):
                 )
 
     def get_attr_or_prop(self, key: str) -> Attribute | None:
+        """Get the attribute or property of the Statement.
+
+        Args:
+            key (str): The key of the attribute or property.
+
+        Returns:
+            Attribute | None: The attribute or property of the Statement.
+        """
         return self.attributes.get(key, self.properties.get(key))
 
     @classmethod
     def has_trait(cls, trait_type: type[StmtTrait]) -> bool:
+        """Check if the Statement has a specific trait.
+
+        Args:
+            trait_type (type[StmtTrait]): The type of trait to check for.
+
+        Returns:
+            bool: True if the class has the specified trait, False otherwise.
+        """
         for trait in cls.traits:
             if isinstance(trait, trait_type):
                 return True
@@ -553,6 +656,7 @@ class Statement(IRNode["Block"]):
 
     @classmethod
     def get_trait(cls, trait: type[TraitType]) -> TraitType | None:
+        """Get the trait of the Statement."""
         for t in cls.traits:
             if isinstance(t, trait):
                 return t
@@ -560,9 +664,22 @@ class Statement(IRNode["Block"]):
 
     @classmethod
     def from_python_call(cls, state: LoweringState, node: ast.Call) -> Result:
+        """Converts a Python call expression to a Kirin IR node.
+
+        Args:
+            state (LoweringState): The current state of the lowering process.
+            node (ast.Call): The Python call expression to be converted.
+
+        Raises:
+            NotImplementedError: If the conversion is not implemented for the given call expression.
+
+        Returns:
+            Result: The converted Kirin IR node.
+        """
         raise NotImplementedError
 
     def expect_one_result(self) -> ResultValue:
+        """Check if the statement contain only one result, and return it"""
         if len(self._results) != 1:
             raise ValueError(f"expected one result, got {len(self._results)}")
         return self._results[0]
@@ -573,6 +690,16 @@ class Statement(IRNode["Block"]):
     # it should be implemented here.
     # NOTE: not an @abstractmethod to make linter happy
     def typecheck(self) -> None:
+        """check the type of the statement.
+
+        Note:
+            1. Statement should implement typecheck.
+            this is done automatically via @statement, but
+            in the case manualy implementation is needed,
+            it should be implemented here.
+            2. This API should be called after all the types are figured out (by typeinfer)
+
+        """
         raise NotImplementedError
 
     def verify(self) -> None:
