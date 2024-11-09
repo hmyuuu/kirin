@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/QuEraComputing/kirin/actions/workflows/ci.yml/badge.svg)](https://github.com/QuEraComputing/kirin/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/QuEraComputing/kirin/graph/badge.svg?token=lkUZ9DTqy4)](https://codecov.io/gh/QuEraComputing/kirin)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/kirin-toolchain.svg?color=%2334D058)](https://pypi.org/project/fastapi)
 
 *K*ernel *I*ntermediate *R*epresentation *IN*frastructure
 
