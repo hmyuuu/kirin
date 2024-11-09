@@ -1,7 +1,10 @@
 site_name: kirin-toolchain
-
 repo_name: kirin-toolchain
 repo_url: https://github.com/QuEraComputing/kirin
+site_description: >-
+  Kirin - Kernel Intermediate Representation Infrastructure
+edit_uri: "edit/main/docs/"
+site_url: https://special-broccoli-revrkk1.pages.github.io/
 
 # Page tree
 nav:
@@ -11,36 +14,36 @@ nav:
       - Declarations: def.md
       - Compiler 101: 101.md
   - API Reference:
-    - Prelude: reference/kirin/prelude.md
-    - IR:
-      - reference/kirin/ir/index.md
-      - Nodes: reference/kirin/ir/nodes/
-      - SSA values: reference/kirin/ir/ssa.md
-      - Attributes: reference/kirin/ir/attrs.md
-      - Traits: reference/kirin/ir/traits.md
-      - Dialect: reference/kirin/ir/dialect.md
-      - Dialect Group: reference/kirin/ir/group.md
-      - Method: reference/kirin/ir/method.md
-    - Interpreter: reference/kirin/interp/
-    - Python Lowering: reference/kirin/lowering/
-    - Analysis:
-      - reference/kirin/analysis/index.md
-      - Dataflow: reference/kirin/analysis/dataflow/
-      - CFG: reference/kirin/analysis/cfg.md
-    - Rewrite:
-      - Generic: reference/kirin/rewrite/
-      - Rules: reference/kirin/rules/
-    - Method Pass: reference/kirin/passes/
-    - Code Generation: reference/kirin/codegen/
-    - Pretty Printing: reference/kirin/print/
-    - IR declaration: reference/kirin/decl/
-    - Exceptions: reference/kirin/exceptions.md
-    - Data Structures:
-      - Lattice: reference/kirin/lattice.md
-      - Graph: reference/kirin/graph.md
-      - IdTable: reference/kirin/idtable.md
-      - Source: reference/kirin/source.md
-      - WorkList: reference/kirin/worklist.md
+      - Prelude: reference/kirin/prelude.md
+      - IR:
+          - reference/kirin/ir/index.md
+          - Nodes: reference/kirin/ir/nodes/
+          - SSA values: reference/kirin/ir/ssa.md
+          - Attributes: reference/kirin/ir/attrs.md
+          - Traits: reference/kirin/ir/traits.md
+          - Dialect: reference/kirin/ir/dialect.md
+          - Dialect Group: reference/kirin/ir/group.md
+          - Method: reference/kirin/ir/method.md
+      - Interpreter: reference/kirin/interp/
+      - Python Lowering: reference/kirin/lowering/
+      - Analysis:
+          - reference/kirin/analysis/index.md
+          - Dataflow: reference/kirin/analysis/dataflow/
+          - CFG: reference/kirin/analysis/cfg.md
+      - Rewrite:
+          - Generic: reference/kirin/rewrite/
+          - Rules: reference/kirin/rules/
+      - Method Pass: reference/kirin/passes/
+      - Code Generation: reference/kirin/codegen/
+      - Pretty Printing: reference/kirin/print/
+      - IR declaration: reference/kirin/decl/
+      - Exceptions: reference/kirin/exceptions.md
+      - Data Structures:
+          - Lattice: reference/kirin/lattice.md
+          - Graph: reference/kirin/graph.md
+          - IdTable: reference/kirin/idtable.md
+          - Source: reference/kirin/source.md
+          - WorkList: reference/kirin/worklist.md
 
 theme:
   name: material
@@ -75,6 +78,7 @@ theme:
     # - navigation.tabs.sticky
     - navigation.top
     - navigation.tracking
+    - navigation.footer
     - search.highlight
     - search.suggest
     - toc.follow
@@ -89,7 +93,7 @@ plugins:
             separate_signature: true
             merge_init_into_class: true
             extensions:
-            - griffe_inherited_docstrings
+              - griffe_inherited_docstrings
             show_inheritance_diagram: true
             show_signature_annotations: true
             show_symbol_type_heading: true
@@ -119,3 +123,12 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+
+copyright: Copyright &copy; 2024 Kirin contributors
+
+extra:
+  social:
+    - icon: simple/x
+      link: https://x.com/QueraComputing
+    - icon: simple/linkedin
+      link: https://www.linkedin.com/company/quera-computing-inc/
