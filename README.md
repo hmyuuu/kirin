@@ -19,3 +19,7 @@ _The multi-level intermediate representation (MLIR) compiler for high-level sema
 ```py
 uv add kirin-toolchain
 ```
+
+## License
+
+Apache License 2.0 with LLVM Exceptions

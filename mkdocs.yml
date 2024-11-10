@@ -10,9 +10,13 @@ site_url: https://special-broccoli-revrkk1.pages.github.io/
 nav:
   - Home:
       - index.md
+      - Mission: mission.md
       - Installation: install.md
       - Declarations: def.md
       - Compiler 101: 101.md
+      - Contributing: contrib.md
+  - Blog:
+    - blog/index.md
   - API Reference:
       - Prelude: reference/kirin/prelude.md
       - IR:
@@ -109,6 +113,7 @@ plugins:
       nav_file: SUMMARY.txt
   - minify:
       minify_html: true
+  - blog
 
 extra_css:
   - stylesheets/extra.css

@@ -17,11 +17,13 @@ scientific computing kernels.
 ## Kirin's mission
 
 Compiler toolchain for scientists. Scientists are building domain-specific languages (DSLs) for
-scientific purposes. These DSLs are often high-level, and their instructions are usually slower
-than the low-level instructions and thus result in smaller programs. The performance does not need
-to be as good as a native program, but scientists want good interactivity and fast prototyping.
-Most importantly, scientists expects writing their DSL in high-level languages like Python
-as their frontend.
+scientific purposes. Most scientists do not have any compiler engineering background. On the other hand,
+these DSLs are often high-level, and their instructions are usually slower than the low-level instructions
+and thus result in smaller programs. No need to generate high quality LLVM IR/native binary most of the time!
+So there are some chances to simplify terminologies, interfaces for the none-pros, while allowing good
+interactivity and fast prototyping.
+
+For the interested, please see the [Mission](mission.md) document for more details.
 
 ## Acknowledgement
 
@@ -296,4 +298,4 @@ This is it!
 
 ## License
 
-Apache License 2.0
+Apache License 2.0 with LLVM Exceptions
