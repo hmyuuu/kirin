@@ -23,7 +23,7 @@ and thus result in smaller programs. No need to generate high quality LLVM IR/na
 So there are some chances to simplify terminologies, interfaces for the none-pros, while allowing good
 interactivity and fast prototyping.
 
-For the interested, please see the [Mission](mission.md) document for more details.
+For the interested, please read the [Kirin's Mission](blog/2024/11/11/kirins-mission/) blog post for more details.
 
 ## Acknowledgement
 
