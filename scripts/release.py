@@ -87,8 +87,8 @@ if subprocess.run(["git", "push"]).returncode != 0:
     fail_and_revert("Failed to push")
 
 # 1. build the package via uv
-print("uv build -c")
-if subprocess.run(["uv", "build", "-c"]).returncode != 0:
+print("uv build")
+if subprocess.run(["uv", "build"]).returncode != 0:
     fail_and_revert("Failed to build the package")
 
 # 2. create a new release
