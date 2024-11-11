@@ -1,6 +1,6 @@
 # Kirin
 
-Kirin is the *K*ernel *I*ntermediate *R*epresentation *In*frastructure. It is a compiler
+Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure. It is a compiler
 infrastructure for building compilers for domain-specific languages (DSLs) that target
 scientific computing kernels.
 
@@ -41,7 +41,7 @@ In this example, we will mutate python's semantics to
 support a small eDSL (embedded domain-specific language) called `beer`.
 It describes the process of brewing beer and get drunk.
 
-Before we start, let's sketch an example of the `beer` language:
+Before we start, let's take a look at what would our `beer` language look like:
 
 ```python
 @beer
@@ -67,6 +67,20 @@ def main(x):
 8. Doing some math to get a result.
 
 The beer language is wrapped with a decorator `@beer` to indicate that the function is written in the `beer` language instead of normal Python. (think about how would you program GPU kernels in Python, or how would you use `jax.jit` and `numba.jit` decorators).
+
+You can run the `main` function as if it is a normal Python function.
+
+```python
+main(1)
+```
+
+or you can inspect the compile result via
+
+```python
+main.print()
+```
+
+![beer-printing](assets/beer-printing.png)
 
 ### Defining the dialect
 
