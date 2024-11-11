@@ -82,26 +82,30 @@ def fail_and_revert(msg):
     exit(1)
 
 
-# sync with remote no matter what
-if subprocess.run(["git", "push"]).returncode != 0:
-    fail_and_revert("Failed to push")
+try:
+    # sync with remote no matter what
+    if subprocess.run(["git", "push"]).returncode != 0:
+        fail_and_revert("Failed to push")
 
-# 1. build the package via uv
-print("uv build")
-if subprocess.run(["uv", "build"]).returncode != 0:
-    fail_and_revert("Failed to build the package")
+    # 1. build the package via uv
+    print("uv build")
+    if subprocess.run(["uv", "build"]).returncode != 0:
+        fail_and_revert("Failed to build the package")
 
-# 2. create a new release
-print(f"gh release create {new_v} dist/*")
-if (
-    subprocess.run(
-        [
-            "gh",
-            "release",
-            "create",
-            "v" + new_v,
-        ]
-    ).returncode
-    != 0
-):
-    fail_and_revert("Failed to create release")
+    # 2. create a new release
+    print(f"gh release create {new_v} dist/*")
+    if (
+        subprocess.run(
+            [
+                "gh",
+                "release",
+                "create",
+                "v" + new_v,
+            ]
+        ).returncode
+        != 0
+    ):
+        fail_and_revert("Failed to create release")
+
+except Exception as e:
+    fail_and_revert(str(e))
