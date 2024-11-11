@@ -125,6 +125,9 @@ markdown_extensions:
   - footnotes
   - md_in_html
   - pymdownx.superfences
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
   - pymdownx.tabbed:
       alternate_style: true
 
