@@ -32,6 +32,8 @@ class IdTable(Generic[T]):
     """The count of names that have been generated."""
     next_id: int = 0
     """The next ID to use for generating names."""
+    alternate_prefix: str = ""
+    """An alternate prefix to use when the name is None."""
 
     def add(self, value: T) -> str:
         """Add a value to the table and return the name."""
@@ -43,7 +45,7 @@ class IdTable(Generic[T]):
             name = self.prefix + value_name + suffix
             self.table[value] = name
         else:
-            name = f"{self.prefix}{id}"
+            name = f"{self.prefix}{self.alternate_prefix}{id}"
             self.next_id += 1
             self.table[value] = name
         return name
