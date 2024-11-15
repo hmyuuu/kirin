@@ -20,17 +20,13 @@ RetType = TypeVar("RetType")
 class Method(Printable, Generic[Param, RetType]):
     mod: ModuleType | None  # ref
     py_func: Callable[Param, RetType] | None  # ref
-    sym_name: str | None
+    sym_name: str
     arg_names: list[str]
     dialects: "DialectGroup"  # own
     code: Statement  # own, the corresponding IR, a func.func usually
     # values contained if closure
     fields: tuple = field(default_factory=tuple)  # own
     file: str = ""
-    lineno: list[tuple[int, int]] = field(default_factory=list)
-    """(<line>, <col>) at the start of the statement call.
-    """
-    backedges: list["Method"] = field(default_factory=list)  # own
     return_type: TypeAttribute | None = None
     inferred: bool = False
     """if typeinfer has been run on this method

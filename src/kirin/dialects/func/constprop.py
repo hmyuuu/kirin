@@ -62,10 +62,15 @@ class DialectConstProp(DialectInterpreter):
         # we want to gurantee what we receive here in captured
         # values are all lattice elements and not just obtain via
         # Const(Method(...)) which is Any.
+        if (trait := callee.code.get_trait(ir.SymbolOpInterface)) is not None:
+            name = trait.get_sym_name(callee.code).data
+        else:
+            name = "lambda"
+
         mt = ir.Method(
             mod=None,
             py_func=None,
-            sym_name=None,
+            sym_name=name,
             arg_names=callee.argnames,
             dialects=interp.dialects,
             code=callee.code,
