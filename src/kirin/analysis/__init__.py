@@ -1,3 +1,4 @@
+from kirin.analysis.callgraph import CallGraph as CallGraph
 from kirin.analysis.cfg import CFG as CFG
 from kirin.analysis.dataflow.constprop import (
     Const as Const,
