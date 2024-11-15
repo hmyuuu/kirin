@@ -29,9 +29,19 @@ class CodeGen(ABC, Generic[Target]):
         self.dialects = dialects
         self.registry = dialects.registry.codegen(self.keys)
 
-    def emit(self, mt: ir.Method) -> Target:
+    def emit(self, node) -> Target:
         """top-level entry point for code generation."""
-        return self.emit_Method(mt)
+        if isinstance(node, ir.Statement):
+            return self.emit_Statement(node)
+        elif isinstance(node, ir.Region):
+            return self.emit_Region(node)
+        elif isinstance(node, ir.Block):
+            return self.emit_Block(node)
+        elif isinstance(node, ir.Method):
+            return self.emit_Method(node)
+        raise NotImplementedError(
+            f"CodeGen for {node.__class__.__name__} not implemented"
+        )
 
     def emit_Statement(self, stmt: ir.Statement) -> Target:
         """Emit a Statement.
