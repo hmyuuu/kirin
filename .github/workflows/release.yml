@@ -24,4 +24,4 @@ jobs:
       - name: Build
         run: uv build
       - name: Publish
-        run: uv publish --publish-url ${{secrets.JFROG_KIRIN_URL}} --username ${{secrets.JFROG_USERNAME}} --password ${{secrets.JFROG_PASSWORD}}
+        run: uv publish --publish-url ${{secrets.JFROG_KIRIN_URL}} --username ${{secrets.JFROG_KIRIN_USERNAME}} --password ${{secrets.JFROG_KIRIN_PASSWORD}}
