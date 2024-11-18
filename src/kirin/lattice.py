@@ -69,9 +69,9 @@ class SingletonMeta(LatticeMeta):
         super().__init__(name, bases, attrs)
         cls._instance = None
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls):
         if cls._instance is None:
-            cls._instance = super().__call__(*args, **kwargs)
+            cls._instance = super().__call__()
         return cls._instance
 
 
