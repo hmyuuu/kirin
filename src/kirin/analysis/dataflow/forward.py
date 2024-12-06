@@ -21,7 +21,12 @@ class ForwardExtra(
     AbstractInterpreter[ForwardFrame[LatticeElemType, ExtraType], LatticeElemType],
     Generic[LatticeElemType, ExtraType],
 ):
-    """Abstract interpreter but record results for each SSA value."""
+    """Abstract interpreter but record results for each SSA value.
+
+    Params:
+        LatticeElemType: The lattice element type.
+        ExtraType: The type of extra information to be stored in the frame.
+    """
 
     results: dict[SSAValue, LatticeElemType] = field(init=False, default_factory=dict)
 
