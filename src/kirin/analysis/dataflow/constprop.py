@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Iterable
+from typing import Any, Iterable, final
 
 from kirin import ir
 from kirin.analysis.dataflow.forward import ForwardExtra
@@ -39,6 +39,7 @@ class ConstPropLattice(Lattice["ConstPropLattice"]):
         return ConstPropBottom()
 
 
+@final
 class NotPure(ConstPropLattice, metaclass=SingletonMeta):
 
     def is_equal(self, other: ConstPropLattice) -> bool:
@@ -50,6 +51,7 @@ class NotPure(ConstPropLattice, metaclass=SingletonMeta):
         return False
 
 
+@final
 @dataclass
 class Const(ConstPropLattice):
     data: Any
@@ -67,6 +69,7 @@ class Const(ConstPropLattice):
         return False
 
 
+@final
 class PartialTupleMeta(LatticeMeta):
     def __call__(cls, data: tuple[ConstPropLattice, ...]):
         if all(isinstance(x, Const) for x in data):
@@ -74,6 +77,7 @@ class PartialTupleMeta(LatticeMeta):
         return super().__call__(data)
 
 
+@final
 @dataclass
 class PartialTuple(ConstPropLattice, metaclass=PartialTupleMeta):
     data: tuple[ConstPropLattice, ...]
@@ -121,6 +125,7 @@ class PartialTuple(ConstPropLattice, metaclass=PartialTupleMeta):
         return False
 
 
+@final
 @dataclass
 class PartialLambda(ConstPropLattice):
     argnames: list[str]
@@ -175,6 +180,7 @@ class PartialLambda(ConstPropLattice):
         )
 
 
+@final
 @dataclass
 class ConstPropBottom(ConstPropLattice, metaclass=SingletonMeta):
 
@@ -185,6 +191,7 @@ class ConstPropBottom(ConstPropLattice, metaclass=SingletonMeta):
         return True
 
 
+@final
 @dataclass
 class NotConst(ConstPropLattice, metaclass=SingletonMeta):
 
