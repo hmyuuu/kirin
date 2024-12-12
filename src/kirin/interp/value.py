@@ -1,5 +1,4 @@
-from abc import ABC, abstractmethod
-from typing import Tuple, Generic, TypeVar
+from typing import Tuple, Generic, TypeVar, TypeAlias
 from dataclasses import dataclass
 
 from kirin.ir import Block, SymbolOpInterface, CallableStmtInterface
@@ -9,15 +8,7 @@ ValueType = TypeVar("ValueType")
 
 
 @dataclass(init=False)
-class Result(ABC, Generic[ValueType]):
-    """Base class of interpretation results."""
-
-    @abstractmethod
-    def __len__(self) -> int: ...
-
-
-@dataclass(init=False)
-class NoReturn(Result[ValueType]):
+class NoReturn(Generic[ValueType]):
     """No return value from a statement evaluation."""
 
     def __len__(self) -> int:
@@ -25,7 +16,7 @@ class NoReturn(Result[ValueType]):
 
 
 @dataclass(init=False)
-class ResultValue(Result[ValueType]):
+class ResultValue(Generic[ValueType]):
     """Result values from a statement evaluation."""
 
     values: Tuple[ValueType, ...]
@@ -38,7 +29,7 @@ class ResultValue(Result[ValueType]):
 
 
 @dataclass(init=False)
-class ReturnValue(Result[ValueType]):
+class ReturnValue(Generic[ValueType]):
     """Return value from a statement evaluation."""
 
     result: ValueType
@@ -52,7 +43,7 @@ class ReturnValue(Result[ValueType]):
 
 
 @dataclass(init=False)
-class Successor(Result[ValueType]):
+class Successor(Generic[ValueType]):
     """Successor block from a statement evaluation."""
 
     block: Block
@@ -71,7 +62,7 @@ class Successor(Result[ValueType]):
 
 
 @dataclass(init=False)
-class Err(Result[ValueType]):
+class Err(Generic[ValueType]):
     """Error result from a statement evaluation."""
 
     exception: Exception
@@ -123,3 +114,12 @@ class Err(Result[ValueType]):
     def panic(self):
         """Raise the error."""
         raise self.exception
+
+
+Result: TypeAlias = (
+    NoReturn[ValueType]
+    | ResultValue[ValueType]
+    | ReturnValue[ValueType]
+    | Successor[ValueType]
+    | Err[ValueType]
+)
