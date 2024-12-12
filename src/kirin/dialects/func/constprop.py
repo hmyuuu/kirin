@@ -1,14 +1,7 @@
 from typing import Iterable
 
 from kirin import ir
-from kirin.analysis.dataflow.constprop import (
-    Const,
-    ConstProp,
-    ConstPropBottom,
-    ConstPropLattice,
-    NotConst,
-    PartialLambda,
-)
+from kirin.analysis import const
 from kirin.dialects.func.dialect import dialect
 from kirin.dialects.func.stmts import Call, GetField, Invoke, Lambda, Return
 from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, impl
@@ -18,31 +11,37 @@ from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, impl
 class DialectConstProp(DialectInterpreter):
 
     @impl(Return)
-    def return_(self, interp: ConstProp, stmt: Return, values: tuple) -> ReturnValue:
+    def return_(
+        self, interp: const.Propagate, stmt: Return, values: tuple[const.JointResult]
+    ) -> ReturnValue:
         if not values:
-            return ReturnValue(Const(None))
+            return ReturnValue(
+                const.JointResult(const.Value(None), const.PurityBottom())
+            )
         else:
             return ReturnValue(*values)
 
     @impl(Call)
-    def call(self, interp: ConstProp, stmt: Call, values: tuple[ConstPropLattice, ...]):
+    def call(
+        self, interp: const.Propagate, stmt: Call, values: tuple[const.JointResult, ...]
+    ):
         # give up on dynamic method calls
         if not values:  # err
-            return ResultValue(ConstPropBottom())
+            return ResultValue(const.JointResult.bottom())
 
-        if isinstance(values[0], PartialLambda):
+        if isinstance(callee := values[0].const, const.PartialLambda):
             return ResultValue(
                 self._call_lambda(
                     interp,
-                    values[0],
-                    interp.permute_values(values[0].argnames, values[1:], stmt.kwargs),
+                    callee,
+                    interp.permute_values(callee.argnames, values[1:], stmt.kwargs),
                 )
             )
 
-        if not isinstance(values[0], Const):
-            return ResultValue(NotConst())
+        if not isinstance(callee := values[0].const, const.Value):
+            return ResultValue(const.JointResult.bottom())
 
-        mt: ir.Method = values[0].data
+        mt: ir.Method = callee.data
         return ResultValue(
             self._invoke_method(
                 interp,
@@ -54,9 +53,9 @@ class DialectConstProp(DialectInterpreter):
 
     def _call_lambda(
         self,
-        interp: ConstProp,
-        callee: PartialLambda,
-        args: tuple[ConstPropLattice, ...],
+        interp: const.Propagate,
+        callee: const.PartialLambda,
+        args: tuple[const.JointResult, ...],
     ):
         # NOTE: we still use PartialLambda because
         # we want to gurantee what we receive here in captured
@@ -80,7 +79,10 @@ class DialectConstProp(DialectInterpreter):
 
     @impl(Invoke)
     def invoke(
-        self, interp: ConstProp, stmt: Invoke, values: tuple[ConstPropLattice, ...]
+        self,
+        interp: const.Propagate,
+        stmt: Invoke,
+        values: tuple[const.JointResult, ...],
     ):
         return ResultValue(
             self._invoke_method(
@@ -93,51 +95,61 @@ class DialectConstProp(DialectInterpreter):
 
     def _invoke_method(
         self,
-        interp: ConstProp,
+        interp: const.Propagate,
         mt: ir.Method,
-        values: tuple[ConstPropLattice, ...],
+        values: tuple[const.JointResult, ...],
         results: Iterable[ir.ResultValue],
     ):
-        if len(interp.state.frames) < interp.max_depth:
-            return interp.eval(mt, values).expect()
-        return interp.bottom
+        return interp.eval(mt, values).expect()
 
     @impl(Lambda)
-    def lambda_(self, interp: ConstProp, stmt: Lambda, values: tuple):
+    def lambda_(
+        self, interp: const.Propagate, stmt: Lambda, values: tuple
+    ) -> ResultValue[const.JointResult]:
         arg_names = [
             arg.name or str(idx) for idx, arg in enumerate(stmt.body.blocks[0].args)
         ]
         if not stmt.body.blocks.isempty() and all(
-            isinstance(each, Const) for each in values
+            isinstance(each, const.Value) for each in values
         ):
             return ResultValue(
-                Const(
-                    ir.Method(
-                        mod=None,
-                        py_func=None,
-                        sym_name=stmt.sym_name,
-                        arg_names=arg_names,
-                        dialects=interp.dialects,
-                        code=stmt,
-                        fields=tuple(each.data for each in values),
-                    )
+                const.JointResult(
+                    const.Value(
+                        ir.Method(
+                            mod=None,
+                            py_func=None,
+                            sym_name=stmt.sym_name,
+                            arg_names=arg_names,
+                            dialects=interp.dialects,
+                            code=stmt,
+                            fields=tuple(each.data for each in values),
+                        )
+                    ),
+                    const.Pure(),
                 )
             )
 
         return ResultValue(
-            PartialLambda(
-                arg_names,
-                stmt,
-                values,
+            const.JointResult(
+                const.PartialLambda(
+                    arg_names,
+                    stmt,
+                    values,
+                ),
+                const.Pure(),
             )
         )
 
     @impl(GetField)
-    def getfield(self, interp: ConstProp, stmt: GetField, values: tuple):
+    def getfield(self, interp: const.Propagate, stmt: GetField, values: tuple):
         callee_self = values[0]
-        if isinstance(callee_self, Const):
+        if isinstance(callee_self, const.Value):
             mt: ir.Method = callee_self.data
-            return ResultValue(Const(mt.fields[stmt.field]))
-        elif isinstance(callee_self, PartialLambda):
-            return ResultValue(callee_self.captured[stmt.field])
-        return ResultValue(NotConst())
+            return ResultValue(
+                const.JointResult(const.Value(mt.fields[stmt.field]), const.Pure())
+            )
+        elif isinstance(callee_self, const.PartialLambda):
+            return ResultValue(
+                const.JointResult(callee_self.captured[stmt.field], const.Pure())
+            )
+        return ResultValue(const.JointResult(const.Unknown(), const.Pure()))
