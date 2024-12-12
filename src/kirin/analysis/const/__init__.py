@@ -1,13 +1,13 @@
-from .lattice import (
-    Bottom as Bottom,
-    JointResult as JointResult,
-    NotPure as NotPure,
-    PartialLambda as PartialLambda,
-    PartialTuple as PartialTuple,
-    Pure as Pure,
-    PurityBottom as PurityBottom,
-    Result as Result,
-    Unknown as Unknown,
-    Value as Value,
-)
 from .prop import Propagate as Propagate
+from .lattice import (
+    Pure as Pure,
+    Value as Value,
+    Bottom as Bottom,
+    Result as Result,
+    NotPure as NotPure,
+    Unknown as Unknown,
+    JointResult as JointResult,
+    PartialTuple as PartialTuple,
+    PurityBottom as PurityBottom,
+    PartialLambda as PartialLambda,
+)

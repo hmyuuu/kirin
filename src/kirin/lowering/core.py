@@ -1,14 +1,14 @@
 import ast
 import inspect
 import textwrap
-from dataclasses import dataclass
 from types import ModuleType
 from typing import Any, Callable, Iterable
+from dataclasses import dataclass
 
-from kirin.exceptions import DialectLoweringError
 from kirin.ir import Dialect, DialectGroup
-from kirin.lowering.dialect import FromPythonAST
+from kirin.exceptions import DialectLoweringError
 from kirin.lowering.state import LoweringState
+from kirin.lowering.dialect import FromPythonAST
 
 
 @dataclass(init=False)

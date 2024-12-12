@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, Generic, Iterable, TypeVar
+from typing import Any, Generic, TypeVar, Iterable
+from dataclasses import field, dataclass
 
 from typing_extensions import Self
 

@@ -1,19 +1,19 @@
 import ast
 
 from kirin import ir
+from kirin.lowering import Frame, Result, FromPythonAST, LoweringState
+from kirin.exceptions import DialectLoweringError
 from kirin.dialects.func.attrs import Signature
-from kirin.dialects.func.dialect import dialect
 from kirin.dialects.func.stmts import (
     Call,
-    ConstantNone,
-    Function,
-    GetField,
     Invoke,
     Lambda,
     Return,
+    Function,
+    GetField,
+    ConstantNone,
 )
-from kirin.exceptions import DialectLoweringError
-from kirin.lowering import Frame, FromPythonAST, LoweringState, Result
+from kirin.dialects.func.dialect import dialect
 
 
 @dialect.register

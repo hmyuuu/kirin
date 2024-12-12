@@ -1,7 +1,7 @@
-from kirin.dialects import cf, func
-from kirin.dialects.py import data, stmts
 from kirin.ir import types
+from kirin.dialects import cf, func
 from kirin.lowering import Lowering
+from kirin.dialects.py import data, stmts
 
 lowering = Lowering([cf, func, data, stmts])
 

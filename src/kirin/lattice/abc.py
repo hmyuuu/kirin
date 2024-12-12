@@ -1,5 +1,5 @@
 from abc import ABC, ABCMeta, abstractmethod
-from typing import Generic, Iterable, TypeVar
+from typing import Generic, TypeVar, Iterable
 
 
 class LatticeMeta(ABCMeta):

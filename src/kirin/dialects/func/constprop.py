@@ -1,10 +1,10 @@
 from typing import Iterable
 
 from kirin import ir
+from kirin.interp import ResultValue, ReturnValue, DialectInterpreter, impl
 from kirin.analysis import const
+from kirin.dialects.func.stmts import Call, Invoke, Lambda, Return, GetField
 from kirin.dialects.func.dialect import dialect
-from kirin.dialects.func.stmts import Call, GetField, Invoke, Lambda, Return
-from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, impl
 
 
 @dialect.register(key="constprop")

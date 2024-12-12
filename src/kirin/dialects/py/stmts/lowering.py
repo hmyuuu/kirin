@@ -1,9 +1,9 @@
 import ast
 
-from kirin.dialects.py import data
-from kirin.exceptions import DialectLoweringError
 from kirin.ir import SSAValue, types
-from kirin.lowering import FromPythonAST, LoweringState, Result
+from kirin.lowering import Result, FromPythonAST, LoweringState
+from kirin.exceptions import DialectLoweringError
+from kirin.dialects.py import data
 
 from . import _stmts as py
 from .dialect import dialect

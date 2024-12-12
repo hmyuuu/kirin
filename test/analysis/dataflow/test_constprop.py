@@ -1,9 +1,9 @@
 from kirin import ir
-from kirin.analysis import const
-from kirin.decl import info, statement
-from kirin.dialects.py import stmts
 from kirin.ir import types
+from kirin.decl import info, statement
 from kirin.prelude import basic_no_opt
+from kirin.analysis import const
+from kirin.dialects.py import stmts
 
 
 class TestLattice:

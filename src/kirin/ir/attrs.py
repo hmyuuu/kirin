@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, ABCMeta, abstractmethod
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
+from dataclasses import field, dataclass
 
 from kirin.print import Printable
 

@@ -1,4 +1,4 @@
-from kirin.interp import DialectInterpreter, ResultValue, impl
+from kirin.interp import ResultValue, DialectInterpreter, impl
 
 from . import _stmts as py
 from .dialect import dialect

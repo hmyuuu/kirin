@@ -1,4 +1,4 @@
-from .lattice import Bottom, PartialLambda, PartialTuple, Unknown, Value
+from .lattice import Value, Bottom, Unknown, PartialTuple, PartialLambda
 
 class _ElemVisitor:
     def is_subseteq_Value(self, other: Value) -> bool: ...

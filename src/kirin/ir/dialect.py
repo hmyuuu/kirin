@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, TypeVar
+from dataclasses import field, dataclass
 
 from typing_extensions import dataclass_transform
 
@@ -11,8 +11,8 @@ from kirin.ir.nodes import Statement
 T = TypeVar("T")
 
 if TYPE_CHECKING:
-    from kirin.codegen.dialect import DialectEmit
     from kirin.interp.dialect import DialectInterpreter
+    from kirin.codegen.dialect import DialectEmit
     from kirin.lowering.dialect import FromPythonAST
 
 
@@ -30,8 +30,8 @@ class Dialect:
 
     def __post_init__(self) -> None:
         from kirin.interp.dialect import (
-            DefaultTypeInferInterpreter,
             EmptyDialectInterpreter,
+            DefaultTypeInferInterpreter,
         )
         from kirin.lowering.dialect import NoSpecialLowering
 
@@ -74,8 +74,8 @@ codegen=[{codegen}]\
         Raises:
             ValueError: If the node is not a subclass of Statement, Attribute, DialectInterpreter, FromPythonAST, or DialectEmit.
         """
-        from kirin.codegen.dialect import DialectEmit
         from kirin.interp.dialect import DialectInterpreter
+        from kirin.codegen.dialect import DialectEmit
         from kirin.lowering.dialect import FromPythonAST
 
         if key is None:

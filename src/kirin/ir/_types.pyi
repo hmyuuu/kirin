@@ -3,12 +3,12 @@ from dataclasses import dataclass
 from kirin.ir.attrs import Attribute
 from kirin.ir.types import (
     Const,
+    Union,
     Generic,
     Literal,
     PyClass,
-    TypeAttribute,
     TypeVar,
-    Union,
+    TypeAttribute,
 )
 
 @dataclass

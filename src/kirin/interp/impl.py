@@ -1,8 +1,8 @@
+from typing import TYPE_CHECKING, Type, Union, TypeVar, Callable, TypeAlias
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, Type, TypeAlias, TypeVar, Union
 
-from kirin.interp.value import Result
 from kirin.ir import Statement, types
+from kirin.interp.value import Result
 
 if TYPE_CHECKING:
     from kirin.interp.base import BaseInterpreter

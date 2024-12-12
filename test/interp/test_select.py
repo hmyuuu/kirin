@@ -2,14 +2,14 @@ from dataclasses import dataclass
 
 import pytest
 
-from kirin.analysis.forward import ForwardExtra
-from kirin.dialects.py import stmts
-from kirin.interp import DialectInterpreter, ResultValue, impl
-from kirin.ir.method import Method
-from kirin.ir.nodes.region import Region
+from kirin.interp import ResultValue, DialectInterpreter, impl
 from kirin.lattice import EmptyLattice
 from kirin.prelude import basic
 from kirin.worklist import WorkList
+from kirin.ir.method import Method
+from kirin.dialects.py import stmts
+from kirin.ir.nodes.region import Region
+from kirin.analysis.forward import ForwardExtra
 
 
 @dataclass(init=False)

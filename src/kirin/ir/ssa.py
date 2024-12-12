@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, ClassVar
+from dataclasses import field, dataclass
 
 from typing_extensions import Self
 
+from kirin.print import Printer, Printable
 from kirin.ir.types import AnyType, TypeAttribute
-from kirin.print import Printable, Printer
 
 if TYPE_CHECKING:
-    from kirin.ir.nodes.block import Block
-    from kirin.ir.nodes.stmt import Statement
     from kirin.ir.use import Use
+    from kirin.ir.nodes.stmt import Statement
+    from kirin.ir.nodes.block import Block
 
 
 @dataclass

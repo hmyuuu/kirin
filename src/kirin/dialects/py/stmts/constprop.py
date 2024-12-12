@@ -1,6 +1,6 @@
 from kirin import interp
+from kirin.interp import ResultValue, DialectInterpreter, impl
 from kirin.analysis import const
-from kirin.interp import DialectInterpreter, ResultValue, impl
 
 from . import _stmts as py
 from .dialect import dialect

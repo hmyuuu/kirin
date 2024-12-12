@@ -1,9 +1,9 @@
-from dataclasses import dataclass
 from typing import Generic, TypeVar
+from dataclasses import dataclass
 
 from kirin import ir
+from kirin.rewrite import RewriteRule, RewriteResult
 from kirin.dialects.py import stmts
-from kirin.rewrite import RewriteResult, RewriteRule
 
 GetItemLikeStmt = TypeVar("GetItemLikeStmt", bound=ir.Statement)
 

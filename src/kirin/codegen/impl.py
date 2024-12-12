@@ -1,6 +1,6 @@
 # TODO: merge with impl in interp
+from typing import TYPE_CHECKING, Union, Generic, TypeVar, Callable, TypeAlias, overload
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Callable, Generic, TypeAlias, TypeVar, Union, overload
 
 from kirin.ir import Attribute, Statement, types
 

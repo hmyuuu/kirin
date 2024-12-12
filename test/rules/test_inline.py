@@ -1,18 +1,18 @@
 # type: ignore
 from kirin import ir, types
-from kirin.analysis import const
-from kirin.analysis.cfg import CFG
 from kirin.decl import info, statement
-from kirin.dialects.py import data, stmts
 from kirin.prelude import basic_no_opt
-from kirin.rewrite import Chain, Fixpoint, Walk
-from kirin.rules.call2invoke import Call2Invoke
-from kirin.rules.cfg_compactify import CFGCompactify
+from kirin.rewrite import Walk, Chain, Fixpoint
+from kirin.analysis import const
 from kirin.rules.dce import DeadCodeElimination
 from kirin.rules.fold import ConstantFold
-from kirin.rules.getfield import InlineGetField
-from kirin.rules.getitem import InlineGetItem
+from kirin.dialects.py import data, stmts
+from kirin.analysis.cfg import CFG
 from kirin.rules.inline import Inline
+from kirin.rules.getitem import InlineGetItem
+from kirin.rules.getfield import InlineGetField
+from kirin.rules.call2invoke import Call2Invoke
+from kirin.rules.cfg_compactify import CFGCompactify
 
 
 @basic_no_opt

@@ -1,29 +1,29 @@
 import inspect
-from collections.abc import Iterable
-from dataclasses import dataclass
-from functools import update_wrapper
 from types import ModuleType
 from typing import (
     TYPE_CHECKING,
-    Callable,
-    Concatenate,
-    Generic,
-    ParamSpec,
-    TypeVar,
     Union,
+    Generic,
+    TypeVar,
+    Callable,
+    ParamSpec,
+    Concatenate,
     overload,
 )
+from functools import update_wrapper
+from dataclasses import dataclass
+from collections.abc import Iterable
 
-from kirin.exceptions import CompilerError
 from kirin.ir.method import Method
+from kirin.exceptions import CompilerError
 
 if TYPE_CHECKING:
+    from kirin.ir.dialect import Dialect
+    from kirin.interp.impl import Signature, StatementImpl as InterpImpl
     from kirin.codegen.impl import (
         Signature as CodegenSignature,
         StatementImpl as CodegenImpl,
     )
-    from kirin.interp.impl import Signature, StatementImpl as InterpImpl
-    from kirin.ir.dialect import Dialect
     from kirin.lowering.dialect import FromPythonAST
 
 

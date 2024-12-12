@@ -3,10 +3,10 @@ from typing import Any
 
 from typing_extensions import Unpack
 
+from kirin.lowering import Result, LoweringState
 from kirin.decl.base import BaseModifier, StatementOptions
-from kirin.dialects.py import data
 from kirin.exceptions import DialectLoweringError
-from kirin.lowering import LoweringState, Result
+from kirin.dialects.py import data
 
 from ._create_fn import create_fn
 from ._set_new_attribute import set_new_attribute

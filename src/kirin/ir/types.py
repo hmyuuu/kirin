@@ -3,20 +3,20 @@ from abc import abstractmethod
 from dataclasses import dataclass
 
 from beartype.door import TupleVariableTypeHint  # type: ignore
-from beartype.door import ClassTypeHint, TypeHint, TypeVarTypeHint
+from beartype.door import TypeHint, ClassTypeHint, TypeVarTypeHint
 from typing_extensions import Never
 
-from kirin.ir._types import _TypeAttribute
-from kirin.ir.attrs import Attribute, AttributeMeta
+from kirin.print import Printer
 from kirin.lattice import (
+    UnionMeta,
+    LatticeMeta,
+    SingletonMeta,
     BoundedLattice,
     IsSubsetEqMixin,
-    LatticeMeta,
     SimpleMeetMixin,
-    SingletonMeta,
-    UnionMeta,
 )
-from kirin.print import Printer
+from kirin.ir.attrs import Attribute, AttributeMeta
+from kirin.ir._types import _TypeAttribute
 
 
 class TypeAttributeMeta(AttributeMeta, LatticeMeta):

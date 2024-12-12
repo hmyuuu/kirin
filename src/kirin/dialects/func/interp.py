@@ -1,14 +1,14 @@
-from kirin.dialects.func.dialect import dialect
+from kirin.ir import Method
+from kirin.interp import ResultValue, ReturnValue, DialectInterpreter, impl, concrete
 from kirin.dialects.func.stmts import (
     Call,
-    ConstantNone,
-    GetField,
     Invoke,
     Lambda,
     Return,
+    GetField,
+    ConstantNone,
 )
-from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, concrete, impl
-from kirin.ir import Method
+from kirin.dialects.func.dialect import dialect
 
 
 @dialect.register

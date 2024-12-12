@@ -1,14 +1,14 @@
 import inspect
 from abc import ABC
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, ClassVar
+from dataclasses import dataclass
 
-from kirin.codegen.impl import AttributeEmitDef, ImplDef
+from kirin.codegen.impl import ImplDef, AttributeEmitDef
 
 if TYPE_CHECKING:
     from kirin import ir
     from kirin.codegen.base import CodeGen
-    from kirin.codegen.impl import ImplFunction, Signature
+    from kirin.codegen.impl import Signature, ImplFunction
 
 
 @dataclass

@@ -1,7 +1,7 @@
+from kirin.interp import Successor, ResultValue, DialectInterpreter, impl
 from kirin.analysis import const
-from kirin.dialects.cf.dialect import dialect
 from kirin.dialects.cf.stmts import Assert, Branch, ConditionalBranch
-from kirin.interp import DialectInterpreter, ResultValue, Successor, impl
+from kirin.dialects.cf.dialect import dialect
 
 
 @dialect.register(key="constprop")

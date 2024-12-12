@@ -1,9 +1,9 @@
-from dataclasses import dataclass
 from typing import Generic, TypeVar
+from dataclasses import dataclass
 
-from kirin.dialects.func.dialect import dialect
-from kirin.ir import Attribute, Method, types
+from kirin.ir import Method, Attribute, types
 from kirin.print.printer import Printer
+from kirin.dialects.func.dialect import dialect
 
 TypeofMethodType = types.PyClass[Method]
 MethodType = types.Generic(

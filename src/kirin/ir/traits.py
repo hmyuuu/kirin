@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Generic, TypeVar
+from dataclasses import dataclass
 
-from kirin.exceptions import VerificationError
 from kirin.ir import types
+from kirin.exceptions import VerificationError
 
 if TYPE_CHECKING:
-    from kirin.dialects.func.attrs import Signature
-    from kirin.dialects.py.data import PyAttr
-    from kirin.graph import Graph
     from kirin.ir import Block, Region, Statement
+    from kirin.graph import Graph
+    from kirin.dialects.py.data import PyAttr
+    from kirin.dialects.func.attrs import Signature
 
 
 @dataclass(frozen=True)

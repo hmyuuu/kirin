@@ -1,23 +1,23 @@
 import pytest
 
 from kirin.ir.types import (
-    AnyType,
-    Bool,
-    BottomType,
-    Dict,
-    Float,
     Int,
+    Bool,
+    Dict,
     List,
-    Literal,
-    NoneType,
-    PyClass,
+    Float,
     Slice,
-    String,
     Tuple,
-    TypeAttribute,
-    TypeVar,
     Union,
+    String,
     Vararg,
+    AnyType,
+    Literal,
+    PyClass,
+    TypeVar,
+    NoneType,
+    BottomType,
+    TypeAttribute,
 )
 
 

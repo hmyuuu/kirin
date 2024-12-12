@@ -5,9 +5,9 @@ import pytest
 from kirin import ir, types
 from kirin.decl import info, statement
 from kirin.dialects import func
-from kirin.dialects.py import data, stmts
-from kirin.exceptions import DialectLoweringError
 from kirin.lowering import Lowering
+from kirin.exceptions import DialectLoweringError
+from kirin.dialects.py import data, stmts
 
 T = types.TypeVar("T")
 

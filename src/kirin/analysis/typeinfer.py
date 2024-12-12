@@ -1,9 +1,9 @@
 from kirin import ir
-from kirin.analysis.forward import Forward
 from kirin.ir import types
 from kirin.ir.method import Method
-from kirin.ir.nodes.region import Region
 from kirin.ir.nodes.stmt import Statement
+from kirin.ir.nodes.region import Region
+from kirin.analysis.forward import Forward
 
 
 class TypeInference(Forward[types.TypeAttribute]):

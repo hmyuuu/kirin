@@ -1,13 +1,13 @@
-from dataclasses import dataclass, field
 from types import ModuleType
-from typing import TYPE_CHECKING, Callable, Generic, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, Callable, ParamSpec
+from dataclasses import field, dataclass
 
+from kirin.ir.types import TypeAttribute
+from kirin.ir.traits import CallableStmtInterface
 from kirin.exceptions import InterpreterError, VerificationError
 from kirin.ir.nodes.stmt import Statement
-from kirin.ir.traits import CallableStmtInterface
-from kirin.ir.types import TypeAttribute
-from kirin.print.printable import Printable
 from kirin.print.printer import Printer
+from kirin.print.printable import Printable
 
 if TYPE_CHECKING:
     from kirin.ir.group import DialectGroup

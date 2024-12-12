@@ -1,5 +1,5 @@
-from kirin.analysis.callgraph import CallGraph
 from kirin.prelude import basic_no_opt
+from kirin.analysis.callgraph import CallGraph
 
 
 @basic_no_opt

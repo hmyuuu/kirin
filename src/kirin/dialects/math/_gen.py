@@ -1,6 +1,6 @@
-import inspect
-import math
 import os
+import math
+import inspect
 import textwrap
 from pathlib import Path
 

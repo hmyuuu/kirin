@@ -1,7 +1,7 @@
 from kirin import ir
+from kirin.interp import Interpreter, ResultValue, DialectInterpreter, impl
+from kirin.dialects.fcf.stmts import Map, Scan, Foldl, Foldr
 from kirin.dialects.fcf.dialect import dialect
-from kirin.dialects.fcf.stmts import Foldl, Foldr, Map, Scan
-from kirin.interp import DialectInterpreter, Interpreter, ResultValue, impl
 
 
 @dialect.register

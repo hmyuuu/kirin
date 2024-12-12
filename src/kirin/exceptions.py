@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from kirin.ir.nodes.base import IRNode
     from kirin.lowering import LoweringState
+    from kirin.ir.nodes.base import IRNode
 
 
 class InterpreterExit(Exception):

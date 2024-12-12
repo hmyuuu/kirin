@@ -1,10 +1,10 @@
-from typing import Generic, Iterable, TypeVar
+from typing import Generic, TypeVar, Iterable
 
-from kirin.interp import AbstractFrame, AbstractInterpreter
 from kirin.ir import Dialect, SSAValue
+from kirin.interp import AbstractFrame, AbstractInterpreter
+from kirin.lattice import BoundedLattice
 from kirin.ir.group import DialectGroup
 from kirin.ir.method import Method
-from kirin.lattice import BoundedLattice
 
 ExtraType = TypeVar("ExtraType")
 LatticeElemType = TypeVar("LatticeElemType", bound=BoundedLattice)

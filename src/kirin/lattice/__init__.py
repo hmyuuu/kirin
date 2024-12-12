@@ -1,9 +1,9 @@
 from kirin.lattice.abc import (
-    BoundedLattice as BoundedLattice,
     Lattice as Lattice,
+    UnionMeta as UnionMeta,
     LatticeMeta as LatticeMeta,
     SingletonMeta as SingletonMeta,
-    UnionMeta as UnionMeta,
+    BoundedLattice as BoundedLattice,
 )
 from kirin.lattice.empty import EmptyLattice as EmptyLattice
 from kirin.lattice.mixin import (

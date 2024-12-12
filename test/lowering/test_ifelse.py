@@ -1,6 +1,6 @@
 from kirin.dialects import cf, func
-from kirin.dialects.py import data, stmts
 from kirin.lowering import Lowering
+from kirin.dialects.py import data, stmts
 
 lowering = Lowering([cf, func, data, stmts])
 

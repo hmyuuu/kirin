@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
+from typing import Tuple, Generic, TypeVar
 from dataclasses import dataclass
-from typing import Generic, Tuple, TypeVar
 
+from kirin.ir import Block, SymbolOpInterface, CallableStmtInterface
 from kirin.interp.frame import Frame
-from kirin.ir import Block, CallableStmtInterface, SymbolOpInterface
 
 ValueType = TypeVar("ValueType")
 

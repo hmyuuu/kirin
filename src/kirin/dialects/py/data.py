@@ -1,8 +1,8 @@
-from dataclasses import dataclass
 from typing import Generic, TypeVar
+from dataclasses import dataclass
 
+from kirin.ir import Dialect, Attribute, types
 from kirin.codegen import CodeGen, DialectEmit, impl
-from kirin.ir import Attribute, Dialect, types
 from kirin.print.printer import Printer
 
 dialect = Dialect("py.data")

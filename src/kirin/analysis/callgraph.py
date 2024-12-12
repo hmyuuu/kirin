@@ -1,9 +1,9 @@
-from dataclasses import dataclass, field
 from typing import Iterable
+from dataclasses import field, dataclass
 
 from kirin import ir
-from kirin.dialects import func
 from kirin.print import Printable
+from kirin.dialects import func
 from kirin.print.printer import Printer
 
 

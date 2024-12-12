@@ -1,6 +1,6 @@
-from kirin.dialects.fcf import Foldl, Foldr, Map, Scan
 from kirin.ir import types
 from kirin.prelude import basic
+from kirin.dialects.fcf import Map, Scan, Foldl, Foldr
 
 
 @basic

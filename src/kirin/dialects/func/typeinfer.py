@@ -1,17 +1,17 @@
 from typing import Iterable
 
 from kirin import ir
+from kirin.interp import ResultValue, ReturnValue, DialectInterpreter, impl
 from kirin.analysis.typeinfer import TypeInference
-from kirin.dialects.func.dialect import dialect
 from kirin.dialects.func.stmts import (
     Call,
-    ConstantNone,
-    GetField,
     Invoke,
     Lambda,
     Return,
+    GetField,
+    ConstantNone,
 )
-from kirin.interp import DialectInterpreter, ResultValue, ReturnValue, impl
+from kirin.dialects.func.dialect import dialect
 
 
 # NOTE: a lot of the type infer rules are same as the builtin dialect

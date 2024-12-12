@@ -1,7 +1,7 @@
-from kirin.dialects import fcf
-from kirin.dialects.py import stmts
 from kirin.ir import types
 from kirin.prelude import basic
+from kirin.dialects import fcf
+from kirin.dialects.py import stmts
 
 
 @basic

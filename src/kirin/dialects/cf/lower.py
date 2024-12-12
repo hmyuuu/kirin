@@ -2,9 +2,9 @@ import ast
 
 from kirin import ir
 from kirin.dialects import cf
-from kirin.dialects.py import stmts
+from kirin.lowering import Frame, Result, FromPythonAST, LoweringState
 from kirin.exceptions import DialectLoweringError
-from kirin.lowering import Frame, FromPythonAST, LoweringState, Result
+from kirin.dialects.py import stmts
 
 
 @cf.dialect.register

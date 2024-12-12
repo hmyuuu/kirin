@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Generic, TypeVar
+from dataclasses import field, dataclass
 
 if TYPE_CHECKING:
     from kirin.ir.ssa import SSAValue

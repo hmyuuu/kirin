@@ -1,10 +1,10 @@
 from typing import Callable, Iterable
 
 from kirin import ir
+from kirin.interp import ResultValue, DialectInterpreter, impl
 from kirin.analysis.typeinfer import TypeInference
+from kirin.dialects.fcf.stmts import Map, Scan, Foldl, Foldr
 from kirin.dialects.fcf.dialect import dialect
-from kirin.dialects.fcf.stmts import Foldl, Foldr, Map, Scan
-from kirin.interp import DialectInterpreter, ResultValue, impl
 
 
 @dialect.register(key="typeinfer")

@@ -1,10 +1,10 @@
-from dataclasses import dataclass
 from typing import Iterable
+from dataclasses import dataclass
 
-from kirin import exceptions, interp, ir
+from kirin import ir, interp, exceptions
 from kirin.analysis.forward import ForwardExtra
 
-from .lattice import JointResult, NotPure, Pure, Unknown, Value
+from .lattice import Pure, Value, NotPure, Unknown, JointResult
 
 
 @dataclass

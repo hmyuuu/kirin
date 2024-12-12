@@ -1,11 +1,11 @@
 from typing import Any, Iterable
 
+from kirin.ir import Block, Region, Dialect, DialectGroup
+from kirin.ir.method import Method
 from kirin.exceptions import FuelExhaustedError
 from kirin.interp.base import BaseInterpreter
 from kirin.interp.frame import Frame
-from kirin.interp.value import Err, NoReturn, ResultValue, ReturnValue, Successor
-from kirin.ir import Block, Dialect, DialectGroup, Region
-from kirin.ir.method import Method
+from kirin.interp.value import Err, NoReturn, Successor, ResultValue, ReturnValue
 
 
 class Interpreter(BaseInterpreter[Frame[Any], Any]):

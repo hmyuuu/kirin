@@ -1,6 +1,6 @@
 from kirin import types
-from kirin.dialects.py import stmts
 from kirin.prelude import basic_no_opt
+from kirin.dialects.py import stmts
 
 
 @basic_no_opt

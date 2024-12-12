@@ -1,6 +1,6 @@
-from kirin.analysis import const
 from kirin.prelude import basic_no_opt
-from kirin.rewrite import Chain, Fixpoint, Walk
+from kirin.rewrite import Walk, Chain, Fixpoint
+from kirin.analysis import const
 from kirin.rules.dce import DeadCodeElimination
 from kirin.rules.getitem import InlineGetItem
 

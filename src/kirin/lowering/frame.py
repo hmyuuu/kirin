@@ -1,6 +1,6 @@
 import ast
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Callable, Optional, Sequence
+from dataclasses import field, dataclass
 
 from kirin.ir import Block, Region, SSAValue, Statement
 from kirin.lowering.stream import StmtStream

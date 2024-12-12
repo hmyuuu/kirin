@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from typing import Iterable
+from dataclasses import dataclass
 
 from kirin.ir import IRNode
 from kirin.rewrite.abc import RewriteRule

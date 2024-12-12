@@ -1,9 +1,9 @@
-from typing_extensions import Annotated, Doc
+from typing_extensions import Doc, Annotated
 
-from kirin.dialects import cf, fcf, func, math
-from kirin.dialects.py import data, stmts
 from kirin.ir import Method, dialect_group
 from kirin.passes import aggressive
+from kirin.dialects import cf, fcf, func, math
+from kirin.dialects.py import data, stmts
 from kirin.passes.fold import Fold
 from kirin.passes.typeinfer import TypeInfer
 

@@ -1,17 +1,17 @@
-import dataclasses
-import inspect
 import re
 import sys
-from dataclasses import KW_ONLY
+import inspect
+import dataclasses
 from types import ModuleType
 from typing import Callable, get_args
+from dataclasses import KW_ONLY
 
 from beartype.door import is_subhint
 
 from kirin import ir
 
 from .base import BaseModifier
-from .info import ArgumentField, AttributeField, Field, StatementFields, argument
+from .info import Field, ArgumentField, AttributeField, StatementFields, argument
 
 
 class ScanFields(BaseModifier):

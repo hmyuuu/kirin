@@ -1,16 +1,16 @@
 import sys
 from abc import ABC, ABCMeta, abstractmethod
-from collections.abc import Iterable
-from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Generic, Sequence, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, Sequence
+from dataclasses import dataclass
+from collections.abc import Iterable
 
+from kirin.ir import Region, Dialect, Statement, DialectGroup, traits
+from kirin.ir.method import Method
 from kirin.exceptions import InterpreterError
 from kirin.interp.frame import FrameABC
 from kirin.interp.state import InterpreterState
-from kirin.interp.value import Err, NoReturn, Result, ResultValue
-from kirin.ir import Dialect, DialectGroup, Region, Statement, traits
-from kirin.ir.method import Method
+from kirin.interp.value import Err, Result, NoReturn, ResultValue
 
 if TYPE_CHECKING:
     from kirin.interp.impl import Signature

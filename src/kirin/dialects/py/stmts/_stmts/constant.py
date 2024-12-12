@@ -1,11 +1,11 @@
 from typing import Generic, TypeVar
 
+from kirin.ir import Pure, Statement, ResultValue, ConstantLike, types
 from kirin.decl import info, statement
+from kirin.print import Printer
+from kirin.exceptions import VerificationError
 from kirin.dialects.py import data
 from kirin.dialects.py.stmts.dialect import dialect
-from kirin.exceptions import VerificationError
-from kirin.ir import ConstantLike, Pure, ResultValue, Statement, types
-from kirin.print import Printer
 
 T = TypeVar("T", covariant=True)
 

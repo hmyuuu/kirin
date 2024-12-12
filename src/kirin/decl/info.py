@@ -1,10 +1,10 @@
 from abc import abstractmethod
-from dataclasses import MISSING, dataclass, field
-from functools import cached_property
 from types import GenericAlias
 from typing import Any, Callable, Optional
+from functools import cached_property
+from dataclasses import MISSING, field, dataclass
 
-from kirin.ir import Attribute, Block, Region, types
+from kirin.ir import Block, Region, Attribute, types
 
 
 @dataclass

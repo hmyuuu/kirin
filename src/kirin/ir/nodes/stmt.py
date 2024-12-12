@@ -1,28 +1,28 @@
 from __future__ import annotations
 
 import ast
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, ClassVar, Iterator, Mapping, Sequence, TypeVar
+from typing import TYPE_CHECKING, Mapping, TypeVar, ClassVar, Iterator, Sequence
+from dataclasses import field, dataclass
 
 from typing_extensions import Self
 
+from kirin.print import Printer, Printable
+from kirin.ir.ssa import SSAValue, ResultValue
+from kirin.ir.use import Use
 from kirin.ir.attrs import Attribute
+from kirin.ir.traits import StmtTrait
 from kirin.ir.nodes.base import IRNode
+from kirin.ir.nodes.view import MutableSequenceView
 from kirin.ir.nodes.block import Block
 from kirin.ir.nodes.region import Region
-from kirin.ir.nodes.view import MutableSequenceView
-from kirin.ir.ssa import ResultValue, SSAValue
-from kirin.ir.traits import StmtTrait
-from kirin.ir.use import Use
-from kirin.print import Printable, Printer
 
 if TYPE_CHECKING:
+    from kirin.source import SourceInfo
+    from kirin.ir.types import TypeAttribute
+    from kirin.lowering import Result, LoweringState
     from kirin.ir.dialect import Dialect
     from kirin.ir.nodes.block import Block
     from kirin.ir.nodes.region import Region
-    from kirin.ir.types import TypeAttribute
-    from kirin.lowering import LoweringState, Result
-    from kirin.source import SourceInfo
 
 
 @dataclass

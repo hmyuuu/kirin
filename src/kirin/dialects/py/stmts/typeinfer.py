@@ -1,5 +1,5 @@
-from kirin.interp import DefaultTypeInferInterpreter, ResultValue, impl
 from kirin.ir import types
+from kirin.interp import ResultValue, DefaultTypeInferInterpreter, impl
 
 from . import _stmts as py
 from .dialect import dialect

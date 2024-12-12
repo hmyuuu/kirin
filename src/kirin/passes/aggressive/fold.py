@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 
-from kirin.analysis import CFG, const
-from kirin.ir.method import Method
+from kirin.rules import aggressive
 from kirin.passes import Pass
 from kirin.rewrite import RewriteResult
-from kirin.rules import aggressive
+from kirin.analysis import CFG, const
+from kirin.ir.method import Method
 
 
 @dataclass

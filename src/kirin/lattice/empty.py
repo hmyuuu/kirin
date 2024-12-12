@@ -1,4 +1,4 @@
-from kirin.lattice.abc import BoundedLattice, SingletonMeta
+from kirin.lattice.abc import SingletonMeta, BoundedLattice
 
 
 class EmptyLattice(BoundedLattice["EmptyLattice"], metaclass=SingletonMeta):

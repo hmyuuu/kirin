@@ -2,8 +2,8 @@
 
 from kirin import ir, types
 from kirin.decl import info, statement
-from kirin.dialects.py import data
 from kirin.prelude import basic, basic_no_opt
+from kirin.dialects.py import data
 
 dialect = ir.Dialect("dummy2")
 

@@ -1,13 +1,13 @@
-from kirin.dialects.cf.dialect import dialect
-from kirin.dialects.cf.stmts import Assert, Branch, ConditionalBranch
 from kirin.interp import (
-    DialectInterpreter,
     Err,
+    Successor,
     Interpreter,
     ResultValue,
-    Successor,
+    DialectInterpreter,
     impl,
 )
+from kirin.dialects.cf.stmts import Assert, Branch, ConditionalBranch
+from kirin.dialects.cf.dialect import dialect
 
 
 @dialect.register

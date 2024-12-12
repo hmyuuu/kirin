@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 
-from kirin.dialects.func import Signature
 from kirin.ir import (
     Block,
-    CallableStmtInterface,
-    HasSignature,
     SSAValue,
     Statement,
+    HasSignature,
+    CallableStmtInterface,
     types,
 )
-from kirin.rewrite import RewriteResult, RewriteRule
+from kirin.rewrite import RewriteRule, RewriteResult
+from kirin.dialects.func import Signature
 
 
 @dataclass

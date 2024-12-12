@@ -1,14 +1,14 @@
-from dataclasses import dataclass, field
 from typing import Any, final
+from dataclasses import field, dataclass
 
 from kirin import ir
 from kirin.lattice import (
+    LatticeMeta,
+    SingletonMeta,
     BoundedLattice,
     IsSubsetEqMixin,
-    LatticeMeta,
     SimpleJoinMixin,
     SimpleMeetMixin,
-    SingletonMeta,
 )
 
 from ._visitor import _ElemVisitor

@@ -1,6 +1,6 @@
-from kirin import info, ir, statement, types
-from kirin.analysis import const
+from kirin import ir, info, types, statement
 from kirin.prelude import basic_no_opt
+from kirin.analysis import const
 
 dialect = ir.Dialect("mwe")
 

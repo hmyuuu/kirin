@@ -1,11 +1,11 @@
-from dataclasses import dataclass, field
 from typing import Iterable
+from dataclasses import field, dataclass
 
 from kirin import ir
 from kirin.exceptions import CodeGenError
 
-from .base import CodeGen
 from .ssa import IdTable
+from .base import CodeGen
 
 
 @dataclass(init=False)

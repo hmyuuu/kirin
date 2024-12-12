@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, ClassVar, Generic, Iterable, TypeVar
+from typing import TYPE_CHECKING, Generic, TypeVar, ClassVar, Iterable
+from dataclasses import field, dataclass
 
 from kirin import ir
 

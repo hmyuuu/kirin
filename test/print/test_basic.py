@@ -3,10 +3,10 @@ import io
 from rich.console import Console
 
 from kirin import ir, types
+from kirin.print import Printer
+from kirin.prelude import basic
 from kirin.dialects import fcf, func
 from kirin.dialects.py import data
-from kirin.prelude import basic
-from kirin.print import Printer
 
 
 @basic

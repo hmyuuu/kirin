@@ -1,17 +1,17 @@
 import inspect
 from abc import ABC
+from typing import TYPE_CHECKING, Tuple, ClassVar
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, ClassVar, Tuple
 
+from kirin.ir import Statement
 from kirin.exceptions import DialectInterpretationError
 from kirin.interp.base import BaseInterpreter
 from kirin.interp.impl import ImplDef
 from kirin.interp.value import Result, ResultValue
-from kirin.ir import Statement
 
 if TYPE_CHECKING:
     from kirin.interp.base import BaseInterpreter
-    from kirin.interp.impl import ImplFunction, Signature
+    from kirin.interp.impl import Signature, ImplFunction
 
 
 @dataclass
