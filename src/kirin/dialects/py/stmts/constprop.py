@@ -1,5 +1,5 @@
 from kirin import interp
-from kirin.interp import DialectInterpreter, impl
+from kirin.interp import MethodTable, impl
 from kirin.analysis import const
 
 from . import _stmts as py
@@ -7,7 +7,7 @@ from .dialect import dialect
 
 
 @dialect.register(key="constprop")
-class DialectConstProp(DialectInterpreter):
+class DialectConstProp(MethodTable):
 
     @impl(py.NewTuple)
     def new_tuple(

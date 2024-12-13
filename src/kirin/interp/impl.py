@@ -6,9 +6,9 @@ from kirin.interp.value import Result
 
 if TYPE_CHECKING:
     from kirin.interp.base import BaseInterpreter
-    from kirin.interp.dialect import DialectInterpreter
+    from kirin.interp.dialect import MethodTable
 
-    Self = TypeVar("Self", bound="DialectInterpreter")
+    Self = TypeVar("Self", bound="MethodTable")
     InterpreterType = TypeVar("InterpreterType", bound="BaseInterpreter")
     StatementType = TypeVar("StatementType", bound=Statement)
     ImplFunction: TypeAlias = Callable[
@@ -35,7 +35,7 @@ class ImplDef:
 
 @dataclass
 class MethodImpl:
-    parent: "DialectInterpreter"
+    parent: "MethodTable"
     impl: "ImplFunction"
 
     def __call__(
