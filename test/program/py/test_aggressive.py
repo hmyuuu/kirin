@@ -3,7 +3,7 @@
 from kirin import ir, types
 from kirin.decl import info, statement
 from kirin.prelude import basic, basic_no_opt
-from kirin.dialects.py import data
+from kirin.dialects.py import data, stmts
 
 dialect = ir.Dialect("dummy2")
 
@@ -42,3 +42,13 @@ def test_aggressive_pass():
             const_count += 1
     assert dummy_count == 3
     assert const_count == 2
+
+
+@basic(fold=True, aggressive=True)
+def should_fold():
+    return 1 < 2
+
+
+def test_should_fold():
+    for stmt in should_fold.callable_region.walk():
+        assert not isinstance(stmt, stmts.Lt)
