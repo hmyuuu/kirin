@@ -14,15 +14,6 @@ class SpecialResult(Generic[ValueType]):
 
 @final
 @dataclass(init=False)
-class NoReturn(SpecialResult[ValueType]):
-    """No return value from a statement evaluation."""
-
-    def __len__(self) -> int:
-        return 0
-
-
-@final
-@dataclass(init=False)
 class ReturnValue(SpecialResult[ValueType]):
     """Return value from a statement evaluation."""
 
@@ -64,7 +55,7 @@ class Err(SpecialResult[ValueType]):
     exception: Exception
     frames: list[Frame]
 
-    def __init__(self, exception: Exception, frames: list[Frame]):
+    def __init__(self, exception: Exception, frames: list):
         super().__init__()
         self.exception = exception
         self.frames = frames.copy()
@@ -77,7 +68,7 @@ class Err(SpecialResult[ValueType]):
 
     def print_stack(self):
         """Print the stack trace of the error."""
-        top_method_code = self.frames[0].method.code
+        top_method_code = self.frames[0].code
         if (call_trait := top_method_code.get_trait(CallableStmtInterface)) is None:
             raise ValueError(f"Method code {top_method_code} is not callable")
 
@@ -112,4 +103,5 @@ class Err(SpecialResult[ValueType]):
         raise self.exception
 
 
-Result: TypeAlias = ValueType | tuple[ValueType, ...] | SpecialResult[ValueType]
+StatementResult: TypeAlias = tuple[ValueType, ...] | SpecialResult[ValueType]
+MethodResult: TypeAlias = ValueType | Err[ValueType]

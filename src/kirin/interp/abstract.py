@@ -1,14 +1,12 @@
-from abc import abstractmethod
 from typing import TypeVar, Iterable
 from dataclasses import field, dataclass
 
 from kirin.ir import Region, Dialect, SSAValue, Statement, DialectGroup
 from kirin.lattice import BoundedLattice
 from kirin.worklist import WorkList
-from kirin.ir.method import Method
 from kirin.interp.base import BaseInterpreter
 from kirin.interp.frame import Frame
-from kirin.interp.value import Successor, ReturnValue
+from kirin.interp.value import Successor, ReturnValue, MethodResult
 
 ResultType = TypeVar("ResultType", bound=BoundedLattice)
 WorkListType = TypeVar("WorkListType", bound=WorkList[Successor])
@@ -44,14 +42,11 @@ class AbstractInterpreter(
             raise TypeError(f"lattice is not defined for {self.__class__.__name__}")
         super().__init__(
             dialects,
+            bottom=self.lattice.bottom(),
             fuel=fuel,
             max_depth=max_depth,
             max_python_recursion_depth=max_python_recursion_depth,
         )
-        self.bottom: ResultType = self.lattice.bottom()
-
-    @abstractmethod
-    def new_method_frame(self, mt: Method) -> AbstractFrameType: ...
 
     def prehook_succ(self, frame: AbstractFrameType, succ: Successor):
         return
@@ -71,14 +66,12 @@ class AbstractInterpreter(
         frame.set_values(ssa, results)
 
     def run_ssacfg_region(
-        self, region: Region, args: tuple[ResultType, ...]
-    ) -> ResultType:
-        frame = self.state.current_frame()
+        self, frame: AbstractFrameType, region: Region
+    ) -> MethodResult[ResultType]:
         result = self.bottom
-        if not region.blocks:
-            return result
-
-        frame.worklist.append(Successor(region.blocks[0], *args))
+        frame.worklist.append(
+            Successor(region.blocks[0], *frame.get_values(region.blocks[0].args))
+        )
         while (succ := frame.worklist.pop()) is not None:
             self.prehook_succ(frame, succ)
             block_result = self.run_block(frame, succ)

@@ -4,7 +4,7 @@ from dataclasses import field, dataclass
 
 from typing_extensions import Self
 
-from kirin.ir import Method, SSAValue, Statement
+from kirin.ir import SSAValue, Statement
 
 ValueType = TypeVar("ValueType")
 
@@ -14,21 +14,24 @@ class FrameABC(ABC, Generic[ValueType]):
 
     @classmethod
     @abstractmethod
-    def from_method(cls, method: Method) -> Self:
+    def from_func_like(cls, code: Statement) -> Self:
         """Create a new frame for the given method."""
         ...
 
     @abstractmethod
     def get(self, key: SSAValue) -> ValueType: ...
 
+    @abstractmethod
+    def set(self, key: SSAValue, value: ValueType) -> None: ...
+
     def get_values(self, keys: Iterable[SSAValue]) -> tuple[ValueType, ...]:
         """Get the values of the given `SSAValue` keys."""
         return tuple(self.get(key) for key in keys)
 
-    @abstractmethod
     def set_values(self, keys: Iterable[SSAValue], values: Iterable[ValueType]) -> None:
         """Set the values of the given `SSAValue` keys."""
-        ...
+        for key, value in zip(keys, values):
+            self.set(key, value)
 
     @abstractmethod
     def set_stmt(self, stmt: Statement) -> Self:
@@ -38,8 +41,8 @@ class FrameABC(ABC, Generic[ValueType]):
 
 @dataclass
 class Frame(FrameABC[ValueType]):
-    method: Method
-    """method being interpreted.
+    code: Statement
+    """func statement being interpreted.
     """
     lino: int = 0
     stmt: Statement | None = None
@@ -59,15 +62,14 @@ class Frame(FrameABC[ValueType]):
     """
 
     @classmethod
-    def from_method(cls, method: Method) -> Self:
-        return cls(method=method)
+    def from_func_like(cls, code: Statement) -> Self:
+        return cls(code=code)
 
     def get(self, key: SSAValue) -> ValueType:
         return self.entries[key]
 
-    def set_values(self, keys: Iterable[SSAValue], values: Iterable[ValueType]) -> None:
-        for key, value in zip(keys, values):
-            self.entries[key] = value
+    def set(self, key: SSAValue, value: ValueType) -> None:
+        self.entries[key] = value
 
     def set_stmt(self, stmt: Statement) -> Self:
         self.stmt = stmt

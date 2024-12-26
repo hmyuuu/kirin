@@ -12,7 +12,6 @@ T = TypeVar("T")
 
 if TYPE_CHECKING:
     from kirin.interp.dialect import MethodTable
-    from kirin.codegen.dialect import DialectEmit
     from kirin.lowering.dialect import FromPythonAST
 
 
@@ -26,7 +25,6 @@ class Dialect:
     attrs: list[type[Attribute]] = field(default_factory=list, init=True)
     interps: dict[str, MethodTable] = field(default_factory=dict, init=True)
     lowering: dict[str, FromPythonAST] = field(default_factory=dict, init=True)
-    codegen: dict[str, DialectEmit] = field(default_factory=dict, init=True)
 
     def __post_init__(self) -> None:
         from kirin.lowering.dialect import NoSpecialLowering
@@ -51,7 +49,6 @@ class Dialect:
             ValueError: If the node is not a subclass of Statement, Attribute, DialectInterpreter, FromPythonAST, or DialectEmit.
         """
         from kirin.interp.dialect import MethodTable
-        from kirin.codegen.dialect import DialectEmit
         from kirin.lowering.dialect import FromPythonAST
 
         if key is None:
@@ -79,12 +76,6 @@ class Dialect:
                         f"Cannot register {node} to Dialect, key {key} exists"
                     )
                 self.lowering[key] = node()
-            elif issubclass(node, DialectEmit):
-                if key in self.codegen:
-                    raise ValueError(
-                        f"Cannot register {node} to Dialect, key {key} exists"
-                    )
-                self.codegen[key] = node()
             else:
                 raise ValueError(f"Cannot register {node} to Dialect")
             return node

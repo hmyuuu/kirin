@@ -13,7 +13,7 @@ from kirin.exceptions import InterpreterError
 from kirin.interp.impl import Signature
 from kirin.interp.frame import FrameABC
 from kirin.interp.state import InterpreterState
-from kirin.interp.value import Err, Result, NoReturn
+from kirin.interp.value import Err, MethodResult, StatementResult
 
 if TYPE_CHECKING:
     from kirin.registry import StatementImpl
@@ -22,36 +22,22 @@ ValueType = TypeVar("ValueType")
 FrameType = TypeVar("FrameType", bound=FrameABC)
 
 
-@dataclass(init=False)
+@dataclass
 class InterpResult(Generic[ValueType]):
     """This is used by the interpreter eval only."""
 
-    value: ValueType | NoReturn
-    err: Err[ValueType] | None = None
-
-    def __init__(self, result: ValueType | NoReturn | Err):
-        if isinstance(result, Err):
-            self.err = result
-            self.value = NoReturn()
-        else:
-            self.value = result
+    value: MethodResult[ValueType]
 
     def expect(self) -> ValueType:
-        if self.err is not None:
-            self.err.print_stack()
-            return self.err.panic()
-        elif isinstance(self.value, NoReturn):
-            raise InterpreterError("no return value")
-        else:
-            return self.value
+        if isinstance(self.value, Err):
+            self.value.print_stack()
+            return self.value.panic()
+        return self.value
 
-    def to_result(self) -> Result[ValueType]:
-        if self.err is not None:
-            return self.err
-        elif isinstance(self.value, NoReturn):
-            return NoReturn()
-        else:
-            return (self.value,)
+    def wrap_result(self) -> StatementResult[ValueType]:
+        if isinstance(self.value, Err):
+            return self.value
+        return (self.value,)
 
 
 class InterpreterMeta(ABCMeta):
@@ -68,6 +54,7 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
     def __init__(
         self,
         dialects: DialectGroup | Iterable[Dialect],
+        bottom: ValueType,
         *,
         fuel: int | None = None,
         max_depth: int = 128,
@@ -76,17 +63,13 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         if not isinstance(dialects, DialectGroup):
             dialects = DialectGroup(dialects)
         self.dialects = dialects
+        self.bottom = bottom
 
         self.registry = self.dialects.registry.interpreter(keys=self.keys)
         self.state: InterpreterState[FrameType] = InterpreterState()
         self.fuel = fuel
         self.max_depth = max_depth
         self.max_python_recursion_depth = max_python_recursion_depth
-
-    @abstractmethod
-    def new_method_frame(self, mt: Method) -> FrameType:
-        """Create a new frame for the given method."""
-        ...
 
     def eval(
         self,
@@ -97,37 +80,79 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         """Evaluate a method."""
         current_recursion_limit = sys.getrecursionlimit()
         sys.setrecursionlimit(self.max_python_recursion_depth)
-        interface = mt.code.get_trait(traits.CallableStmtInterface)
-        if interface is None:
-            raise InterpreterError(f"compiled method {mt} is not callable")
-
-        if len(self.state.frames) >= self.max_depth:
-            raise InterpreterError("maximum recursion depth exceeded")
-
-        self.state.push_frame(self.new_method_frame(mt))
-        body = interface.get_callable_region(mt.code)
-        # NOTE: #self# is not user input so it is not
-        # in the args, +1 is for self
         args = self.get_args(mt.arg_names[len(args) + 1 :], args, kwargs)
-        # NOTE: this should be checked via static validation, we just assume
-        # number of args is correct here
-        # NOTE: Method is used as if it is a singleton type, but it is not recognized by mypy
-        results = self.run_method_region(mt, body, args)
-        self.postprocess_frame(self.state.pop_frame())
+        results = self.run_method(mt, args)
         sys.setrecursionlimit(current_recursion_limit)
         return InterpResult(results)
 
     @abstractmethod
-    def run_method_region(
-        self, mt: Method, body: Region, args: tuple[ValueType, ...]
-    ) -> ValueType: ...
+    def run_method(
+        self, method: Method, args: tuple[ValueType, ...]
+    ) -> MethodResult[ValueType]:
+        """How to run a method.
 
-    def postprocess_frame(self, frame: FrameType) -> None:
+        This is defined by subclasses to describe what's the corresponding
+        value of a method during the interpretation.
+
+        Args
+            method (Method): the method to run.
+            args (tuple[ValueType]): the arguments to the method, does not include self.
+
+        Returns
+            ValueType: the result of the method.
+        """
+        ...
+
+    def run_callable(
+        self, code: Statement, args: tuple[ValueType, ...]
+    ) -> MethodResult[ValueType]:
+        """Run a callable statement.
+
+        Args
+            code (Statement): the statement to run.
+            args (tuple[ValueType]): the arguments to the statement,
+                includes self if the corresponding callable region contains a self argument.
+
+        Returns
+            ValueType: the result of the statement.
+        """
+        interface = code.get_trait(traits.CallableStmtInterface)
+        if interface is None:
+            raise InterpreterError(f"statement {code.name} is not callable")
+
+        frame = self.new_frame(code)
+        self.state.push_frame(frame)
+        body = interface.get_callable_region(code)
+        if not body.blocks:
+            return self.finalize(self.state.pop_frame(), self.bottom)
+        frame.set_values(body.blocks[0].args, args)
+        results = self.run_callable_region(frame, code, body)
+        return self.finalize(self.state.pop_frame(), results)
+
+    def run_callable_region(
+        self, frame: FrameType, code: Statement, region: Region
+    ) -> MethodResult[ValueType]:
+        """A hook defines how to run the callable region given
+        the interpreter context. This is experimental API, don't
+        subclass it. The current reason of having it is mainly
+        because we need to dispatch back to the MethodTable for
+        emit.
+        """
+        return self.run_ssacfg_region(frame, region)
+
+    @abstractmethod
+    def new_frame(self, code: Statement) -> FrameType:
+        """Create a new frame for the given method."""
+        ...
+
+    def finalize(
+        self, frame: FrameType, results: MethodResult[ValueType]
+    ) -> MethodResult[ValueType]:
         """Postprocess a frame after it is popped from the stack. This is
         called after a method is evaluated and the frame is popped. Default
         implementation does nothing.
         """
-        return
+        return results
 
     @staticmethod
     def get_args(
@@ -168,17 +193,27 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         )
         return args
 
-    def run_stmt(self, frame: FrameType, stmt: Statement) -> Result[ValueType]:
+    def run_stmt(self, frame: FrameType, stmt: Statement) -> StatementResult[ValueType]:
         "run a statement within the current frame"
         # TODO: update tracking information
         return self.eval_stmt(frame, stmt)
 
-    def eval_stmt(self, frame: FrameType, stmt: Statement) -> Result[ValueType]:
+    def eval_stmt(
+        self, frame: FrameType, stmt: Statement
+    ) -> StatementResult[ValueType]:
         "simply evaluate a statement"
         method = self.lookup_registry(frame, stmt)
         if method is not None:
             return method(self, frame, stmt)
-        raise ValueError(f"no dialect for stmt {stmt} from {type(self)}")
+
+        # NOTE: not using f-string here because 3.10 and 3.11 have
+        #  parser bug that doesn't allow f-string in raise statement
+        raise ValueError(
+            "no implementation for stmt "
+            + stmt.print_str(end="")
+            + " from "
+            + str(type(self))
+        )
 
     def build_signature(self, frame: FrameType, stmt: Statement) -> "Signature":
         """build signature for querying the statement implementation."""
@@ -188,16 +223,16 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         self, frame: FrameType, stmt: Statement
     ) -> Optional["StatementImpl[Self, FrameType]"]:
         sig = self.build_signature(frame, stmt)
-        if sig in self.registry:
-            return self.registry[sig]
-        elif (class_sig := Signature(stmt.__class__)) in self.registry:
-            return self.registry[class_sig]
+        if sig in self.registry.statements:
+            return self.registry.statements[sig]
+        elif (class_sig := Signature(stmt.__class__)) in self.registry.statements:
+            return self.registry.statements[class_sig]
         return
 
     @abstractmethod
     def run_ssacfg_region(
-        self, region: Region, args: tuple[ValueType, ...]
-    ) -> ValueType: ...
+        self, frame: FrameType, region: Region
+    ) -> MethodResult[ValueType]: ...
 
     class FuelResult(Enum):
         Stop = 0
