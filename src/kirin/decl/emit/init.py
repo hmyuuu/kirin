@@ -6,7 +6,6 @@ from typing_extensions import Unpack
 from kirin import ir
 from kirin.decl import info
 from kirin.decl.base import BaseModifier, StatementOptions
-from kirin.dialects.py.data import PyAttr
 
 from ._create_fn import create_fn
 from ._set_new_attribute import set_new_attribute
@@ -30,6 +29,8 @@ class EmitInit(BaseModifier):
 
     def __init__(self, cls: type, **kwargs: Unpack[StatementOptions]) -> None:
         super().__init__(cls, **kwargs)
+        from kirin.dialects.py.data import PyAttr
+
         self._init_params: list[str] = []
         self._init_body: list[str] = []
         self._init_locals: dict[str, Any] = {}

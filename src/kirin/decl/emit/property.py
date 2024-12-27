@@ -1,6 +1,5 @@
 from kirin import ir
 from kirin.decl import info
-from kirin.dialects.py import data
 from kirin.decl.emit.init import BaseModifier
 
 from ._create_fn import create_fn
@@ -112,6 +111,8 @@ class EmitProperty(BaseModifier):
         return getter, setter
 
     def _emit_attribute_property(self, f: info.AttributeField):
+        from kirin.dialects.py import data
+
         storage = "properties" if f.property else "attributes"
         attr = f"{self._self_name}.{storage}['{f.name}']"
         getter = create_fn(

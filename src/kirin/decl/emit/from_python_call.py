@@ -6,7 +6,6 @@ from typing_extensions import Unpack
 from kirin.lowering import Result, LoweringState
 from kirin.decl.base import BaseModifier, StatementOptions
 from kirin.exceptions import DialectLoweringError
-from kirin.dialects.py import data
 
 from ._create_fn import create_fn
 from ._set_new_attribute import set_new_attribute
@@ -29,6 +28,8 @@ class EmitFromPythonCall(BaseModifier):
     _AST_CONSTANT = "_kirin_ast_Constant"
 
     def __init__(self, cls: type, **kwargs: Unpack[StatementOptions]) -> None:
+        from kirin.dialects.py import data
+
         super().__init__(cls, **kwargs)
         self.globals[self._KIRIN_RESULT] = Result
         self.globals[self._KIRIN_PYATTR] = data.PyAttr

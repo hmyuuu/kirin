@@ -27,6 +27,7 @@ class ForwardExtra(
         dialects: ir.DialectGroup | Iterable[ir.Dialect],
         *,
         fuel: int | None = None,
+        save_all_ssa: bool = False,
         max_depth: int = 128,
         max_python_recursion_depth: int = 8192,
     ):
@@ -36,7 +37,8 @@ class ForwardExtra(
             max_depth=max_depth,
             max_python_recursion_depth=max_python_recursion_depth,
         )
-        self.results = {}
+        self.save_all_ssa = save_all_ssa
+        self.results: dict[ir.SSAValue, LatticeElemType] = {}
 
     def set_values(
         self,
@@ -55,7 +57,10 @@ class ForwardExtra(
         frame: ForwardFrame[LatticeElemType, ExtraType],
         results: MethodResult[LatticeElemType],
     ) -> MethodResult[LatticeElemType]:
-        self.results = frame.entries
+        if self.save_all_ssa:
+            self.results.update(frame.entries)
+        else:
+            self.results = frame.entries
         return results
 
     def new_frame(self, code: ir.Statement) -> ForwardFrame[LatticeElemType, ExtraType]:
