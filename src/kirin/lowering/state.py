@@ -112,10 +112,37 @@ class LoweringState(ast.NodeVisitor):
             # it will be called first before __dispatch_Call
             # because "Call" exists in self.registry
             return self.__dispatch_Call(node)
+        elif isinstance(node, ast.With):
+            return self.__dispatch_With(node)
         return super().visit(node)
 
     def generic_visit(self, node: ast.AST):
         raise DialectLoweringError(f"unsupported ast node {type(node)}:")
+
+    def __dispatch_With(self, node: ast.With):
+        if len(node.items) != 1:
+            raise DialectLoweringError("expected exactly one item in with statement")
+
+        item = node.items[0]
+        if not isinstance(item.context_expr, ast.Call):
+            raise DialectLoweringError("expected context expression to be a call")
+
+        global_callee_result = self.get_global_nothrow(item.context_expr.func)
+        if global_callee_result is None:
+            raise DialectLoweringError("cannot find call func in with context")
+
+        global_callee = global_callee_result.unwrap()
+        if not issubclass(global_callee, Statement):
+            raise DialectLoweringError("expected callee to be a statement")
+
+        if (
+            trait := global_callee.get_trait(traits.FromPythonWithSingleItem)
+        ) is not None:
+            return trait.lower(global_callee, self, node)
+
+        raise DialectLoweringError(
+            "unsupported callee, missing FromPythonWithSingleItem trait"
+        )
 
     def __dispatch_Call(self, node: ast.Call):
         # 1. try to lookup global statement object
@@ -195,6 +222,63 @@ class LoweringState(ast.NodeVisitor):
         if "Call_local" in self.registry:
             return self.registry["Call_local"].lower_Call_local(self, callee, node)
         raise DialectLoweringError("`lower_Call_local` not implemented")
+
+    def default_Call_lower(self, stmt: type[Statement], node: ast.Call) -> Result:
+        """Default lowering for Python call to statement.
+
+        This method is intended to be used by traits like `FromPythonCall` to
+        provide a default lowering for Python calls to statements.
+
+        Args:
+            stmt(type[Statement]): Statement class to construct.
+            node(ast.Call): Python call node to lower.
+
+        Returns:
+            Result: Result of lowering the Python call to statement.
+        """
+        args, kwargs = self.default_Call_inputs(stmt, node)
+        return Result(self.append_stmt(stmt(*args.values(), **kwargs)))
+
+    def default_Call_inputs(
+        self, stmt: type[Statement], node: ast.Call
+    ) -> tuple[dict[str, SSAValue | tuple[SSAValue, ...]], dict[str, Any]]:
+        from kirin.decl import fields
+        from kirin.dialects.py.data import PyAttr
+
+        fs = fields(stmt)
+        stmt_std_arg_names = fs.std_args.keys()
+        stmt_kw_args_name = fs.kw_args.keys()
+        stmt_attr_prop_names = fs.attr_or_props
+        stmt_required_names = fs.required_names
+        stmt_group_arg_names = fs.group_arg_names
+        args, kwargs = {}, {}
+        for name, value in zip(stmt_std_arg_names, node.args):
+            self._parse_arg(stmt_group_arg_names, args, name, value)
+        for kw in node.keywords:
+            if not isinstance(kw.arg, str):
+                raise DialectLoweringError("Expected string for keyword argument name")
+
+            arg: str = kw.arg
+            if arg in node.args:
+                raise DialectLoweringError(
+                    f"Keyword argument {arg} is already present in positional arguments"
+                )
+            elif arg in stmt_std_arg_names or arg in stmt_kw_args_name:
+                self._parse_arg(stmt_group_arg_names, kwargs, kw.arg, kw.value)
+            elif arg in stmt_attr_prop_names:
+                if not isinstance(kw.value, ast.Constant):
+                    raise DialectLoweringError(
+                        f"Expected constant for attribute or property {arg}"
+                    )
+                kwargs[arg] = PyAttr(kw.value.value)
+            else:
+                raise DialectLoweringError(f"Unexpected keyword argument {arg}")
+
+        for name in stmt_required_names:
+            if name not in args and name not in kwargs:
+                raise DialectLoweringError(f"Missing required argument {name}")
+
+        return args, kwargs
 
     def _parse_arg(
         self,
