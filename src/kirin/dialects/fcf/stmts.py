@@ -46,7 +46,7 @@ class Map(ir.Statement):
     """The kernel function to apply. The function should have signature `fn(x: int) -> Any`."""
     coll: ir.SSAValue = info.argument(ir.types.Any)
     """The iterable to map over."""
-    result: ir.ResultValue = info.result(ir.types.List)
+    result: ir.ResultValue = info.result(ir.types.Tuple)
     """The list of results."""
 
 
