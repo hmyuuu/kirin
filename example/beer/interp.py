@@ -8,7 +8,7 @@ from kirin.interp import Frame, Successor, Interpreter, MethodTable, impl
 
 
 @dialect.register
-class BeerInterpreter(MethodTable):
+class BeerMethods(MethodTable):
 
     @impl(NewBeer)
     def new_beer(self, interp: Interpreter, frame: Frame, stmt: NewBeer):

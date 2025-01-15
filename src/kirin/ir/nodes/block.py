@@ -13,8 +13,8 @@ from kirin.ir.nodes.base import IRNode
 from kirin.ir.nodes.view import View, MutableSequenceView
 
 if TYPE_CHECKING:
-    from kirin.ir.types import TypeAttribute
     from kirin.ir.nodes.stmt import Statement
+    from kirin.ir.attrs.types import TypeAttribute
     from kirin.ir.nodes.region import Region
 
 

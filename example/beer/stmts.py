@@ -8,7 +8,7 @@ from kirin.decl import info, statement
 @statement(dialect=dialect)
 class NewBeer(ir.Statement):
     name = "new_beer"
-    traits = frozenset({ir.Pure()})
+    traits = frozenset({ir.Pure(), ir.FromPythonCall()})
     brand: ir.SSAValue = info.argument(types.String)
     result: ir.ResultValue = info.result(types.PyClass(Beer))
 
@@ -16,12 +16,14 @@ class NewBeer(ir.Statement):
 @statement(dialect=dialect)
 class Drink(ir.Statement):
     name = "drink"
+    traits = frozenset({ir.FromPythonCall()})
     beverage: ir.SSAValue = info.argument(types.PyClass(Beer))
 
 
 @statement(dialect=dialect)
 class Pour(ir.Statement):
     name = "pour"
+    traits = frozenset({ir.FromPythonCall()})
     beverage: ir.SSAValue = info.argument(types.PyClass(Beer))
     amount: ir.SSAValue = info.argument(types.Int)
 
@@ -40,3 +42,4 @@ class RandomBranch(ir.Statement):
 @statement(dialect=dialect)
 class Puke(ir.Statement):
     name = "puke"
+    traits = frozenset({ir.FromPythonCall()})

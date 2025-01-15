@@ -1,7 +1,7 @@
 from stmts import Pour, Puke, Drink, NewBeer
 from dialect import dialect
 
-from interp import BeerInterpreter as BeerInterpreter
+from interp import BeerMethods as BeerMethods
 from rewrite import RandomWalkBranch
 from kirin.ir import dialect_group
 from kirin.prelude import basic_no_opt
@@ -24,10 +24,15 @@ def beer(self):
 # type: ignore
 @beer
 def main(x):
+    def some_closure(beer, amount):
+        Pour(beer, amount + 1)
+        Puke()
+
     beer = NewBeer("budlight")
     Drink(beer)
-    Pour(beer, 12)
+    Pour(beer, 12 + x)
     Puke()
+    some_closure(beer, 1 + 1)
     if x > 1:
         Drink(NewBeer("heineken"))
     else:
