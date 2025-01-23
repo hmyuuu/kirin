@@ -25,11 +25,15 @@ class EmitTypeCheck(BaseModifier):
                 body.extend(
                     (
                         f"for v in {self._self_name}.{f.name}:",
-                        *self._guard_ssa_type(f.name, value_type, indent=1),
+                        *self._guard_ssa_type("v", f.name, value_type, indent=1),
                     )
                 )
             else:
-                body.extend(self._guard_ssa_type(f.name, value_type))
+                body.extend(
+                    self._guard_ssa_type(
+                        f"{self._self_name}.{name}", f.name, value_type
+                    )
+                )
 
         for name, f in self.fields.results.items():
             if f.type is f.type.top():
@@ -37,7 +41,9 @@ class EmitTypeCheck(BaseModifier):
 
             value_type = f"_results_{f.name}_type"
             typecheck_locals.update({value_type: f.type})
-            body.extend(self._guard_ssa_type(name, value_type))
+            body.extend(
+                self._guard_ssa_type(f"{self._self_name}.{name}", name, value_type)
+            )
 
         for name in self.fields.blocks.keys():
             body.append(f"{self._self_name}.{name}.typecheck()")
@@ -62,10 +68,10 @@ class EmitTypeCheck(BaseModifier):
             ),
         )
 
-    def _guard_ssa_type(self, name, type, indent: int = 0):
+    def _guard_ssa_type(self, ssa, name, type, indent: int = 0):
         space = "  " * indent
-        msg = f"'Invalid type for {name}, expected ' + repr({type}) + ', got ' + repr({self._self_name}.{name}.type)"
+        msg = f"'Invalid type for {name}, expected ' + repr({type}) + ', got ' + repr({ssa}.type)"
         return (
-            space + f"if not {self._self_name}.{name}.type.is_subseteq({type}):",
+            space + f"if not {ssa}.type.is_subseteq({type}):",
             space + f"    raise {self._VERIFICATION_ERROR}({self._self_name}, {msg})",
         )
