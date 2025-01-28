@@ -312,6 +312,12 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
 
         return self.eval_stmt_fallback(frame, stmt)
 
+    @deprecated("use eval_stmt_fallback instead")
+    def run_stmt_fallback(
+        self, frame: FrameType, stmt: Statement
+    ) -> StatementResult[ValueType]:
+        return self.eval_stmt_fallback(frame, stmt)
+
     def eval_stmt_fallback(
         self, frame: FrameType, stmt: Statement
     ) -> StatementResult[ValueType]:
