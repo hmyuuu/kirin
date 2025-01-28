@@ -1,9 +1,9 @@
-from typing import TypeVar, Iterable
+from abc import ABC
+from typing import TypeVar
 from dataclasses import field, dataclass
 
 from kirin import ir, interp
 from kirin.worklist import WorkList
-from kirin.exceptions import FuelExhaustedError
 
 ValueType = TypeVar("ValueType")
 
@@ -17,49 +17,27 @@ class EmitFrame(interp.Frame[ValueType]):
 FrameType = TypeVar("FrameType", bound=EmitFrame)
 
 
-class EmitABC(interp.BaseInterpreter[FrameType, ValueType]):
-
-    def __init__(
-        self,
-        dialects: ir.DialectGroup | Iterable[ir.Dialect],
-        bottom: ValueType,
-        *,
-        fuel: int | None = None,
-        max_depth: int = 128,
-        max_python_recursion_depth: int = 8192,
-    ):
-        super().__init__(
-            dialects,
-            bottom,
-            fuel=fuel,
-            max_depth=max_depth,
-            max_python_recursion_depth=max_python_recursion_depth,
-        )
+@dataclass
+class EmitABC(interp.BaseInterpreter[FrameType, ValueType], ABC):
 
     def run_callable_region(
         self, frame: FrameType, code: ir.Statement, region: ir.Region
-    ) -> ValueType | interp.Err[ValueType]:
-        results = self.run_stmt(frame, code)
-        if isinstance(results, interp.Err):
-            return results
-        elif isinstance(results, tuple):
+    ) -> ValueType:
+        results = self.eval_stmt(frame, code)
+        if isinstance(results, tuple):
             if len(results) == 0:
-                return self.bottom
+                return self.void
             elif len(results) == 1:
                 return results[0]
-        raise ValueError(f"Unexpected results {results}")
+        raise interp.InterpreterError(f"Unexpected results {results}")
 
-    def run_ssacfg_region(
-        self, frame: FrameType, region: ir.Region
-    ) -> ValueType | interp.Err[ValueType]:
-        result = self.bottom
+    def run_ssacfg_region(self, frame: FrameType, region: ir.Region) -> ValueType:
+        result = self.void
         frame.worklist.append(
             interp.Successor(region.blocks[0], frame.get_values(region.blocks[0].args))
         )
         while (succ := frame.worklist.pop()) is not None:
             block_header = self.emit_block(frame, succ.block)
-            if isinstance(block_header, interp.Err):
-                return block_header
             frame.block_ref[succ.block] = block_header
         return result
 
@@ -85,22 +63,18 @@ class EmitABC(interp.BaseInterpreter[FrameType, ValueType]):
     def emit_block_end(self, frame: FrameType, block: ir.Block) -> None:
         return
 
-    def emit_block(
-        self, frame: FrameType, block: ir.Block
-    ) -> interp.MethodResult[ValueType]:
+    def emit_block(self, frame: FrameType, block: ir.Block) -> ValueType:
         self.emit_block_begin(frame, block)
         stmt = block.first_stmt
         while stmt is not None:
             if self.consume_fuel() == self.FuelResult.Stop:
-                raise FuelExhaustedError("fuel exhausted")
+                raise interp.FuelExhaustedError("fuel exhausted")
 
             self.emit_stmt_begin(frame, stmt)
-            stmt_results = self.run_stmt(frame, stmt)
+            stmt_results = self.eval_stmt(frame, stmt)
             self.emit_stmt_end(frame, stmt)
 
             match stmt_results:
-                case interp.Err(_):
-                    return stmt_results
                 case tuple(values):
                     frame.set_values(stmt._results, values)
                 case interp.ReturnValue(_):

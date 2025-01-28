@@ -1,44 +1,28 @@
-from typing import Any, Iterable
+from typing import Any
 
-from kirin.ir import Block, Region, Dialect, DialectGroup
+from kirin.ir import Block, Region
 from kirin.ir.method import Method
-from kirin.exceptions import InterpreterError, FuelExhaustedError
-from kirin.interp.base import BaseInterpreter
-from kirin.interp.frame import Frame
-from kirin.interp.value import Err, Successor, ReturnValue, MethodResult
 from kirin.ir.nodes.stmt import Statement
+
+from .base import BaseInterpreter
+from .frame import Frame
+from .value import Successor, ReturnValue
+from .exceptions import FuelExhaustedError
 
 
 class Interpreter(BaseInterpreter[Frame[Any], Any]):
     keys = ["main"]
-
-    def __init__(
-        self,
-        dialects: DialectGroup | Iterable[Dialect],
-        *,
-        fuel: int | None = None,
-        max_depth: int = 128,
-        max_python_recursion_depth: int = 8192,
-    ):
-        super().__init__(
-            dialects,
-            bottom=None,
-            fuel=fuel,
-            max_depth=max_depth,
-            max_python_recursion_depth=max_python_recursion_depth,
-        )
+    void = None
 
     def new_frame(self, code: Statement) -> Frame[Any]:
         return Frame.from_func_like(code)
 
-    def run_method(self, method: Method, args: tuple[Any, ...]) -> MethodResult[Any]:
-        if len(self.state.frames) >= self.max_depth:
-            raise InterpreterError("maximum recursion depth exceeded")
+    def run_method(self, method: Method, args: tuple[Any, ...]) -> Any:
         return self.run_callable(method.code, (method,) + args)
 
-    def run_ssacfg_region(self, frame: Frame[Any], region: Region) -> MethodResult[Any]:
+    def run_ssacfg_region(self, frame: Frame[Any], region: Region) -> Any:
         stmt_idx = 0
-        result = self.bottom
+        result = self.void
         block: Block | None = region.blocks[0]
         while block is not None:
             stmt = block.first_stmt
@@ -55,11 +39,9 @@ class Interpreter(BaseInterpreter[Frame[Any], Any]):
                 # TODO: make this more precise
                 frame.lino = stmt_idx
                 frame.stmt = stmt
-                stmt_results = self.run_stmt(frame, stmt)
+                stmt_results = self.eval_stmt(frame, stmt)
 
                 match stmt_results:
-                    case Err(_):
-                        return stmt_results
                     case tuple(values):
                         frame.set_values(stmt._results, values)
                     case ReturnValue(result):

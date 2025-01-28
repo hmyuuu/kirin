@@ -1,97 +1,148 @@
 import sys
 from abc import ABC, ABCMeta, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Generic, TypeVar, Optional, Sequence
-from dataclasses import dataclass
-from collections.abc import Iterable
+from typing import TYPE_CHECKING, Generic, TypeVar, ClassVar, Optional, Sequence
+from dataclasses import field, dataclass
 
-from typing_extensions import Self
+from typing_extensions import Self, deprecated
 
-from kirin.ir import Region, Dialect, Statement, DialectGroup, traits
+from kirin.ir import Region, Statement, DialectGroup, traits
 from kirin.ir.method import Method
-from kirin.exceptions import InterpreterError
-from kirin.interp.impl import Signature
-from kirin.interp.frame import FrameABC
-from kirin.interp.state import InterpreterState
-from kirin.interp.value import Err, MethodResult, SpecialResult, StatementResult
+
+from .impl import Signature
+from .frame import FrameABC
+from .state import InterpreterState
+from .value import SpecialValue, StatementResult
+from .result import Ok, Err, Result
+from .exceptions import InterpreterError
 
 if TYPE_CHECKING:
-    from kirin.registry import StatementImpl
+    from kirin.registry import StatementImpl, InterpreterRegistry
 
 ValueType = TypeVar("ValueType")
 FrameType = TypeVar("FrameType", bound=FrameABC)
-
-
-@dataclass
-class InterpResult(Generic[ValueType]):
-    """This is used by the interpreter eval only."""
-
-    value: MethodResult[ValueType]
-
-    def expect(self) -> ValueType:
-        if isinstance(self.value, Err):
-            self.value.print_stack()
-            return self.value.panic()
-        return self.value
-
-    def wrap_result(self) -> StatementResult[ValueType]:
-        if isinstance(self.value, Err):
-            return self.value
-        return (self.value,)
 
 
 class InterpreterMeta(ABCMeta):
     pass
 
 
+@dataclass
 class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterMeta):
-    """A base class for interpreters."""
+    """A base class for interpreters.
 
-    keys: list[str]
-    """The name of the interpreter to select from dialects by order.
+    This class defines the basic structure of an interpreter. It is
+    designed to be subclassed to provide the actual implementation of
+    the interpreter.
+
+    When subclassing, if the bases contains `ABC` no checks will be
+    performed on the subclass. If the subclass does not contain `ABC`,
+    the subclass must define the following attributes:
+
+    - `keys`: a list of strings that defines the order of dialects to select from.
+    - `void`: the value to return when the interpreter evaluates nothing.
     """
 
-    def __init__(
-        self,
-        dialects: DialectGroup | Iterable[Dialect],
-        bottom: ValueType,
-        *,
-        fuel: int | None = None,
-        debug: bool = False,
-        max_depth: int = 128,
-        max_python_recursion_depth: int = 8192,
-    ):
-        if not isinstance(dialects, DialectGroup):
-            dialects = DialectGroup(dialects)
-        self.dialects = dialects
-        self.bottom = bottom
+    keys: ClassVar[list[str]]
+    """The name of the interpreter to select from dialects by order.
+    """
+    void: ValueType = field(init=False)
+    """What to return when the interpreter evaluates nothing.
+    """
+    dialects: DialectGroup
+    """The dialects to interpret.
+    """
+    fuel: int | None = field(default=None, kw_only=True)
+    """The fuel limit for the interpreter.
+    """
+    debug: bool = field(default=False, kw_only=True)
+    """Whether to enable debug mode.
+    """
+    max_depth: int = field(default=128, kw_only=True)
+    """The maximum depth of the interpreter stack.
+    """
+    max_python_recursion_depth: int = field(default=8192, kw_only=True)
+    """The maximum recursion depth of the Python interpreter.
+    """
 
+    # global states
+    registry: "InterpreterRegistry" = field(init=False, compare=False)
+    """The interpreter registry.
+    """
+    symbol_table: dict[str, Statement] = field(init=False, compare=False)
+    """The symbol table.
+    """
+    state: InterpreterState[FrameType] = field(init=False, compare=False)
+    """The interpreter state.
+    """
+
+    # private
+    _eval_lock: bool = field(default=False, init=False, compare=False)
+
+    def __post_init__(self) -> None:
         self.registry = self.dialects.registry.interpreter(keys=self.keys)
+
+    def initialize(self) -> Self:
+        """Initialize the interpreter global states.
+
+        This method is called before calling `eval` to initialize the
+        interpreter global states.
+
+        Override this method to add custom global states.
+        """
         self.symbol_table: dict[str, Statement] = {}
         self.state: InterpreterState[FrameType] = InterpreterState()
-        self.fuel = fuel
-        self.debug = debug
-        self.max_depth = max_depth
-        self.max_python_recursion_depth = max_python_recursion_depth
+        return self
 
+    def __init_subclass__(cls) -> None:
+        super().__init_subclass__()
+        if ABC in cls.__bases__:
+            return
+
+        if not hasattr(cls, "keys"):
+            raise TypeError(f"keys is not defined for class {cls.__name__}")
+        if not hasattr(cls, "void"):
+            raise TypeError(f"void is not defined for class {cls.__name__}")
+
+    @deprecated("use run instead")
     def eval(
         self,
         mt: Method,
         args: tuple[ValueType, ...],
         kwargs: dict[str, ValueType] | None = None,
-    ) -> InterpResult[ValueType]:
-        """Evaluate a method."""
+    ) -> Result[ValueType]:
+        return self.run(mt, args, kwargs)
+
+    def run(
+        self,
+        mt: Method,
+        args: tuple[ValueType, ...],
+        kwargs: dict[str, ValueType] | None = None,
+    ) -> Result[ValueType]:
+        """Run a method."""
+        if self._eval_lock:
+            raise InterpreterError(
+                "recursive eval is not allowed, use run_method instead"
+            )
+
+        self._eval_lock = True
+        self.initialize()
         current_recursion_limit = sys.getrecursionlimit()
         sys.setrecursionlimit(self.max_python_recursion_depth)
         args = self.get_args(mt.arg_names[len(args) + 1 :], args, kwargs)
-        results = self.run_method(mt, args)
-        sys.setrecursionlimit(current_recursion_limit)
-        return InterpResult(results)
+        try:
+            results = self.run_method(mt, args)
+        except InterpreterError as e:
+            # NOTE: initialize will create new State
+            # so we don't need to copy the frames.
+            return Err(e, self.state.frames)
+        finally:
+            self._eval_lock = False
+            sys.setrecursionlimit(current_recursion_limit)
+        return Ok(results)
 
     @abstractmethod
-    def run_method(
-        self, method: Method, args: tuple[ValueType, ...]
-    ) -> MethodResult[ValueType]:
+    def run_method(self, method: Method, args: tuple[ValueType, ...]) -> ValueType:
         """How to run a method.
 
         This is defined by subclasses to describe what's the corresponding
@@ -106,9 +157,7 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         """
         ...
 
-    def run_callable(
-        self, code: Statement, args: tuple[ValueType, ...]
-    ) -> MethodResult[ValueType]:
+    def run_callable(self, code: Statement, args: tuple[ValueType, ...]) -> ValueType:
         """Run a callable statement.
 
         Args:
@@ -119,6 +168,9 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         Returns:
             ValueType: the result of the statement.
         """
+        if len(self.state.frames) >= self.max_depth:
+            return self.eval_recursion_limit(self.state.current_frame())
+
         interface = code.get_trait(traits.CallableStmtInterface)
         if interface is None:
             raise InterpreterError(f"statement {code.name} is not callable")
@@ -127,14 +179,14 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         self.state.push_frame(frame)
         body = interface.get_callable_region(code)
         if not body.blocks:
-            return self.finalize(self.state.pop_frame(), self.bottom)
+            return self.finalize(self.state.pop_frame(), self.void)
         frame.set_values(body.blocks[0].args, args)
         results = self.run_callable_region(frame, code, body)
         return self.finalize(self.state.pop_frame(), results)
 
     def run_callable_region(
         self, frame: FrameType, code: Statement, region: Region
-    ) -> MethodResult[ValueType]:
+    ) -> ValueType:
         """A hook defines how to run the callable region given
         the interpreter context.
 
@@ -151,9 +203,7 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         """Create a new frame for the given method."""
         ...
 
-    def finalize(
-        self, frame: FrameType, results: MethodResult[ValueType]
-    ) -> MethodResult[ValueType]:
+    def finalize(self, frame: FrameType, results: ValueType) -> ValueType:
         """Postprocess a frame after it is popped from the stack. This is
         called after a method is evaluated and the frame is popped.
 
@@ -200,7 +250,13 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         )
         return args
 
+    @deprecated("use eval_stmt instead")
     def run_stmt(self, frame: FrameType, stmt: Statement) -> StatementResult[ValueType]:
+        return self.eval_stmt(frame, stmt)
+
+    def eval_stmt(
+        self, frame: FrameType, stmt: Statement
+    ) -> StatementResult[ValueType]:
         """Run a statement within the current frame. This is the entry
         point of running a statement. It will look up the statement implementation
         in the dialect registry, or optionally call a fallback implementation.
@@ -224,7 +280,7 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
             ```python
                 class MyInterpreter(BaseInterpreter):
                     ...
-                    def run_stmt(self, frame: FrameType, stmt: Statement) -> StatementResult[ValueType]:
+                    def eval_stmt(self, frame: FrameType, stmt: Statement) -> StatementResult[ValueType]:
                         if isinstance(stmt, MyStmt):
                             return self.run_my_stmt(frame, stmt)
                         else:
@@ -235,20 +291,16 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         # TODO: update tracking information
         method = self.lookup_registry(frame, stmt)
         if method is not None:
-            try:
-                results = method(self, frame, stmt)
-                if self.debug and not isinstance(results, (tuple, SpecialResult)):
-                    return Err(
-                        ValueError("method must return tuple or SpecialResult"),
-                        self.state.frames,
-                    )
-                return results
-            except InterpreterError as e:
-                return Err(e, self.state.frames)
+            results = method(self, frame, stmt)
+            if self.debug and not isinstance(results, (tuple, SpecialValue)):
+                raise InterpreterError(
+                    f"method must return tuple or SpecialResult, got {results}"
+                )
+            return results
 
-        return self.run_stmt_fallback(frame, stmt)
+        return self.eval_stmt_fallback(frame, stmt)
 
-    def run_stmt_fallback(
+    def eval_stmt_fallback(
         self, frame: FrameType, stmt: Statement
     ) -> StatementResult[ValueType]:
         """The fallback implementation of statements.
@@ -274,6 +326,13 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
             + str(type(self))
         )
 
+    def eval_recursion_limit(self, frame: FrameType) -> ValueType:
+        """Return the value of recursion exception, e.g in concrete
+        interpreter, it will raise an exception if the limit is reached;
+        in type inference, it will return a special value.
+        """
+        raise InterpreterError("maximum recursion depth exceeded")
+
     def build_signature(self, frame: FrameType, stmt: Statement) -> "Signature":
         """build signature for querying the statement implementation."""
         return Signature(stmt.__class__, tuple(arg.type for arg in stmt.args))
@@ -289,9 +348,7 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         return
 
     @abstractmethod
-    def run_ssacfg_region(
-        self, frame: FrameType, region: Region
-    ) -> MethodResult[ValueType]: ...
+    def run_ssacfg_region(self, frame: FrameType, region: Region) -> ValueType: ...
 
     class FuelResult(Enum):
         Stop = 0

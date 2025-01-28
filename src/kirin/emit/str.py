@@ -1,9 +1,9 @@
-from typing import IO, Generic, TypeVar, Iterable
+from abc import ABC
+from typing import IO, Generic, TypeVar
 from dataclasses import field, dataclass
 
 from kirin import ir, interp, idtable
 from kirin.emit.abc import EmitABC, EmitFrame
-from kirin.exceptions import InterpreterError
 
 IO_t = TypeVar("IO_t", bound=IO)
 
@@ -14,40 +14,26 @@ class EmitStrFrame(EmitFrame[str]):
     captured: dict[ir.SSAValue, tuple[str, ...]] = field(default_factory=dict)
 
 
-class EmitStr(EmitABC[EmitStrFrame, str], Generic[IO_t]):
+@dataclass
+class EmitStr(EmitABC[EmitStrFrame, str], ABC, Generic[IO_t]):
+    void = ""
+    file: IO_t
+    prefix: str = field(default="", kw_only=True)
+    prefix_if_none: str = field(default="var_", kw_only=True)
 
-    def __init__(
-        self,
-        file: IO_t,
-        dialects: ir.DialectGroup | Iterable[ir.Dialect],
-        *,
-        fuel: int | None = None,
-        max_depth: int = 128,
-        max_python_recursion_depth: int = 8192,
-        prefix: str = "",
-        prefix_if_none: str = "var_",
-    ):
-        super().__init__(
-            dialects,
-            bottom="",
-            fuel=fuel,
-            max_depth=max_depth,
-            max_python_recursion_depth=max_python_recursion_depth,
-        )
-        self.file = file
+    def initialize(self):
+        super().initialize()
         self.ssa_id = idtable.IdTable[ir.SSAValue](
-            prefix=prefix, prefix_if_none=prefix_if_none
+            prefix=self.prefix, prefix_if_none=self.prefix_if_none
         )
-        self.block_id = idtable.IdTable[ir.Block](prefix=prefix + "block_")
+        self.block_id = idtable.IdTable[ir.Block](prefix=self.prefix + "block_")
 
     def new_frame(self, code: ir.Statement) -> EmitStrFrame:
         return EmitStrFrame.from_func_like(code)
 
-    def run_method(
-        self, method: ir.Method, args: tuple[str, ...]
-    ) -> str | interp.Err[str]:
+    def run_method(self, method: ir.Method, args: tuple[str, ...]) -> str:
         if len(self.state.frames) >= self.max_depth:
-            raise InterpreterError("maximum recursion depth exceeded")
+            raise interp.InterpreterError("maximum recursion depth exceeded")
         return self.run_callable(method.code, (method.sym_name,) + args)
 
     def write(self, *args):

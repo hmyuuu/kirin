@@ -22,7 +22,7 @@ class DummyInterpreter(ForwardExtra[EmptyLattice, None]):
 
     def run_method(
         self, method: Method, args: tuple[EmptyLattice, ...]
-    ) -> EmptyLattice | interp.Err[EmptyLattice]:
+    ) -> EmptyLattice:
         return self.run_callable(method.code, (EmptyLattice(),) + args)
 
 
@@ -42,4 +42,4 @@ def main(x):
 def test_interp():
     interp = DummyInterpreter(basic)
     with pytest.raises(AttributeError):
-        interp.eval(main, (EmptyLattice(),))
+        interp.run_analysis(main)

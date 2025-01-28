@@ -1,4 +1,4 @@
-from typing import TypeGuard
+from typing import TypeGuard, final
 
 from kirin import ir, types, interp
 from kirin.analysis import const
@@ -8,6 +8,7 @@ from kirin.analysis.forward import Forward, ForwardFrame
 from .solve import TypeResolution
 
 
+@final
 class TypeInference(Forward[types.TypeAttribute]):
     keys = ["typeinfer"]
     lattice = types.TypeAttribute
@@ -30,9 +31,9 @@ class TypeInference(Forward[types.TypeAttribute]):
             return value.body
         return value
 
-    def run_stmt_fallback(
+    def eval_stmt_fallback(
         self, frame: ForwardFrame[types.TypeAttribute, None], stmt: ir.Statement
-    ) -> tuple[types.TypeAttribute, ...] | interp.SpecialResult[types.TypeAttribute]:
+    ) -> tuple[types.TypeAttribute, ...] | interp.SpecialValue[types.TypeAttribute]:
         resolve = TypeResolution()
         for arg, value in zip(stmt.args, frame.get_values(stmt.args)):
             resolve.solve(arg.type, value)
@@ -40,13 +41,10 @@ class TypeInference(Forward[types.TypeAttribute]):
 
     def run_method(
         self, method: ir.Method, args: tuple[types.TypeAttribute, ...]
-    ) -> interp.MethodResult[types.TypeAttribute]:
-        if len(self.state.frames) < self.max_depth:
-            # NOTE: widen method type here
-            return self.run_callable(
-                method.code, (types.Hinted(types.PyClass(ir.Method), method),) + args
-            )
-        return types.Bottom
+    ) -> types.TypeAttribute:
+        return self.run_callable(
+            method.code, (types.Hinted(types.PyClass(ir.Method), method),) + args
+        )
 
     def is_const(
         self, value: types.TypeAttribute
