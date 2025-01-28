@@ -43,11 +43,18 @@ IOType = TypeVar("IOType", bound=IO)
 
 @dataclass(init=False)
 class Printer(Generic[IOType]):
+    """printer for IR nodes and other objects."""
+
     stream: IOType | None = None
+    """Output stream"""
     analysis: dict["ir.SSAValue", Any] | None = None
+    """Analysis results"""
     console: Console = field(default_factory=Console)
+    """Rich console"""
     state: PrintState = field(default_factory=PrintState)
+    """Printing state"""
     color: ColorScheme = field(default_factory=ColorScheme)
+    """Color scheme"""
     show_indent_mark: bool = True
     "Whether to show indent marks, e.g │"
 
@@ -65,7 +72,11 @@ class Printer(Generic[IOType]):
         self.show_indent_mark = show_indent_mark
 
     def print(self, object):
-        """entry point for printing an object"""
+        """entry point for printing an object
+
+        Args:
+            object: object to print.
+        """
         if isinstance(object, Printable):
             object.print_impl(self)
         else:
@@ -79,6 +90,12 @@ class Printer(Generic[IOType]):
     def print_name(
         self, node: Union["ir.Attribute", "ir.Statement"], prefix: str = ""
     ) -> None:
+        """print the name of a node
+
+        Args:
+            node(ir.Attribute | ir.Statement): node to print
+            prefix(str): prefix to print before the name, default to ""
+        """
         self.print_dialect_path(node, prefix=prefix)
         if node.dialect:
             self.plain_print(".")
@@ -87,6 +104,12 @@ class Printer(Generic[IOType]):
     def print_dialect_path(
         self, node: Union["ir.Attribute", "ir.Statement"], prefix: str = ""
     ) -> None:
+        """print the dialect path of a node.
+
+        Args:
+            node(ir.Attribute | ir.Statement): node to print
+            prefix(str): prefix to print before the dialect path, default to ""
+        """
         if node.dialect:  # not None
             self.plain_print(prefix)
             self.plain_print(node.dialect.name, style=self.color.dialect)
@@ -94,6 +117,10 @@ class Printer(Generic[IOType]):
             self.plain_print(prefix)
 
     def print_newline(self):
+        """print a newline character.
+
+        This method also prints any messages in the state for debugging.
+        """
         self.plain_print("\n")
 
         if self.state.messages:
@@ -104,6 +131,7 @@ class Printer(Generic[IOType]):
         self.print_indent()
 
     def print_indent(self):
+        """print the current indentation level optionally with indent marks."""
         indent_str = ""
         if self.show_indent_mark and self.state.indent_marks:
             indent_str = "".join(
@@ -117,6 +145,17 @@ class Printer(Generic[IOType]):
             self.plain_print(indent_str)
 
     def plain_print(self, *objects, sep="", end="", style=None, highlight=None):
+        """print objects without any formatting.
+
+        Args:
+            *objects: objects to print
+
+        Keyword Args:
+            sep(str): separator between objects, default to ""
+            end(str): end character, default to ""
+            style(str): style to use, default to None
+            highlight(bool): whether to highlight the text, default to None
+        """
         self.console.out(
             *objects,
             sep=sep,
@@ -138,6 +177,19 @@ class Printer(Generic[IOType]):
         style=None,
         highlight=None,
     ) -> None:
+        """print a sequence of objects.
+
+        Args:
+            seq(Iterable[ElemType]): sequence of objects to print
+
+        Keyword Args:
+            emit(Callable[[ElemType], None]): function to print each element, default to None
+            delim(str): delimiter between elements, default to ", "
+            prefix(str): prefix to print before the sequence, default to ""
+            suffix(str): suffix to print after the sequence, default to ""
+            style(str): style to use, default to None
+            highlight(bool): whether to highlight the text, default to None
+        """
         emit = emit or self.print
         self.plain_print(prefix, style=style, highlight=highlight)
         for idx, item in enumerate(seq):
@@ -156,6 +208,15 @@ class Printer(Generic[IOType]):
         emit: Callable[[ValueType], None] | None = None,
         delim: str = ", ",
     ):
+        """print a mapping of key-value pairs.
+
+        Args:
+            elems(dict[KeyType, ValueType]): mapping to print
+
+        Keyword Args:
+            emit(Callable[[ValueType], None]): function to print each value, default to None
+            delim(str): delimiter between key-value pairs, default to ", "
+        """
         emit = emit or self.print
         for i, (key, value) in enumerate(elems.items()):
             if i > 0:
@@ -165,6 +226,14 @@ class Printer(Generic[IOType]):
 
     @contextmanager
     def align(self, width: int):
+        """align the result column width, and restore it after the context.
+
+        Args:
+            width(int): width of the column
+
+        Yields:
+            PrintState: the state with the new column width
+        """
         old_width = self.state.result_width
         self.state.result_width = width
         try:
@@ -174,6 +243,15 @@ class Printer(Generic[IOType]):
 
     @contextmanager
     def indent(self, increase: int = 2, mark: bool | None = None):
+        """increase the indentation level, and restore it after the context.
+
+        Args:
+            increase(int): amount to increase the indentation level, default to 2
+            mark(bool): whether to mark the indentation level, default to None
+
+        Yields:
+            PrintState: the state with the new indentation level.
+        """
         mark = mark if mark is not None else self.show_indent_mark
         self.state.indent += increase
         if mark:
@@ -187,6 +265,15 @@ class Printer(Generic[IOType]):
 
     @contextmanager
     def rich(self, style: str | None = None, highlight: bool = False):
+        """set the rich style and highlight, and restore them after the context.
+
+        Args:
+            style(str): style to use, default to None
+            highlight(bool): whether to highlight the text, default to False
+
+        Yields:
+            PrintState: the state with the new style and highlight.
+        """
         old_style = self.state.rich_style
         old_highlight = self.state.rich_highlight
         self.state.rich_style = style
@@ -199,6 +286,11 @@ class Printer(Generic[IOType]):
 
     @contextmanager
     def string_io(self):
+        """Temporary string IO for capturing output.
+
+        Yields:
+            io.StringIO: the string IO object.
+        """
         stream = io.StringIO()
         old_file = self.console.file
         self.console.file = stream
@@ -209,10 +301,16 @@ class Printer(Generic[IOType]):
             stream.close()
 
     def result_str(self, results: list["ir.ResultValue"]) -> str:
+        """return the string representation of a list of result values.
+
+        Args:
+            results(list[ir.ResultValue]): list of result values to print
+        """
         with self.string_io() as stream:
             self.print_seq(results, delim=", ")
             result_str = stream.getvalue()
         return result_str
 
     def debug(self, message: str):
+        """Print a debug message."""
         self.state.messages.append(f"DEBUG: {message}")
