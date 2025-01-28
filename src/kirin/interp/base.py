@@ -331,7 +331,7 @@ class BaseInterpreter(ABC, Generic[FrameType, ValueType], metaclass=InterpreterM
         """
         # NOTE: not using f-string here because 3.10 and 3.11 have
         #  parser bug that doesn't allow f-string in raise statement
-        raise ValueError(
+        raise InterpreterError(
             "no implementation for stmt "
             + stmt.print_str(end="")
             + " from "
