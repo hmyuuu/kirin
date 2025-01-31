@@ -27,9 +27,9 @@ class Interpreter(BaseInterpreter[Frame[Any], Any]):
     def run_method(self, method: Method, args: tuple[Any, ...]) -> Any:
         return self.run_callable(method.code, (method,) + args)
 
-    def run_ssacfg_region(self, frame: Frame[Any], region: Region) -> Any:
+    def run_ssacfg_region(self, frame: Frame[Any], region: Region) -> tuple[Any, ...]:
         stmt_idx = 0
-        result = self.void
+        results = ()
         block: Block | None = region.blocks[0]
         while block is not None:
             stmt = block.first_stmt
@@ -51,7 +51,7 @@ class Interpreter(BaseInterpreter[Frame[Any], Any]):
                 match stmt_results:
                     case tuple(values):
                         frame.set_values(stmt._results, values)
-                    case ReturnValue(result):
+                    case ReturnValue(results):
                         break
                     case Successor(block, block_args):
                         # block is not None, continue to next block
@@ -63,4 +63,4 @@ class Interpreter(BaseInterpreter[Frame[Any], Any]):
                 stmt = stmt.next_stmt
                 stmt_idx += 1
         # end of while
-        return result
+        return results

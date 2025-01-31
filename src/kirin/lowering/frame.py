@@ -122,11 +122,38 @@ class Frame:
             return value
         return None
 
+    def get_scope(self, name: str):
+        """Get a variable from current scope.
+
+        Args:
+            name(str): variable name
+
+        Returns:
+            SSAValue: the value of the variable
+
+        Raises:
+            DialectLoweringError: if the variable is not found in the scope,
+                or if the variable has multiple possible values.
+        """
+        value = self.defs.get(name)
+        if isinstance(value, SSAValue):
+            return value
+        elif isinstance(value, set):
+            raise DialectLoweringError(
+                f"multiple possible values for {name}," " replace with a Block argument"
+            )
+        else:
+            raise DialectLoweringError(f"Variable {name} not found in scope")
+
     StmtType = TypeVar("StmtType", bound=Statement)
 
     def append_stmt(self, stmt: StmtType) -> StmtType:
-        if not stmt.dialect or stmt.dialect not in self.state.dialects:
-            raise DialectLoweringError(f"Unsupported dialect {stmt.dialect}")
+        if not stmt.dialect:
+            raise DialectLoweringError(f"unexpected builtin statement {stmt.name}")
+        elif stmt.dialect not in self.state.dialects:
+            raise DialectLoweringError(
+                f"Unsupported dialect `{stmt.dialect.name}` in statement {stmt.name}"
+            )
         self.current_block.stmts.append(stmt)
         stmt.source = self.state.source
         return stmt

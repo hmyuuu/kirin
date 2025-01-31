@@ -11,6 +11,7 @@ from . import (
     unary as unary,
     assign as assign,
     boolop as boolop,
+    unpack as unpack,
     builtin as builtin,
     constant as constant,
     indexing as indexing,
