@@ -24,6 +24,7 @@ from kirin.dialects.py import (
     builtin,
     constant,
     indexing,
+    assertion,
 )
 from kirin.passes.fold import Fold
 from kirin.passes.typeinfer import TypeInfer
@@ -43,6 +44,7 @@ from kirin.passes.typeinfer import TypeInfer
         indexing,
         len,
         tuple,
+        assertion,
     ]
 )
 def python_basic(self):

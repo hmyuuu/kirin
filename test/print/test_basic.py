@@ -88,8 +88,8 @@ class TestBasicPrint:
         self.dummy_check(empty)
         self.dummy_check(empty.code)
         assert isinstance(empty.code, func.Function)
-        assert isinstance(empty.code.body, ir.Region)
-        region = empty.code.body
+        assert isinstance(empty.callable_region, ir.Region)
+        region = empty.callable_region
         self.dummy_check(region.blocks[0])
-        empty.code.body.blocks[0].detach()
+        empty.callable_region.blocks[0].detach()
         self.dummy_check(empty.code)
