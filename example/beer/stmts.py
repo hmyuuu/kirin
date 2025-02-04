@@ -1,4 +1,4 @@
-from attrs import Beer
+from attrs import Beer, Pints
 from dialect import dialect
 
 from kirin import ir, types
@@ -9,23 +9,27 @@ from kirin.decl import info, statement
 class NewBeer(ir.Statement):
     name = "new_beer"
     traits = frozenset({ir.Pure(), ir.FromPythonCall()})
-    brand: ir.SSAValue = info.argument(types.String)
+    brand: str = info.attribute(types.String)
     result: ir.ResultValue = info.result(types.PyClass(Beer))
 
 
 @statement(dialect=dialect)
-class Drink(ir.Statement):
-    name = "drink"
-    traits = frozenset({ir.FromPythonCall()})
-    beverage: ir.SSAValue = info.argument(types.PyClass(Beer))
-
-
-@statement(dialect=dialect)
 class Pour(ir.Statement):
-    name = "pour"
     traits = frozenset({ir.FromPythonCall()})
     beverage: ir.SSAValue = info.argument(types.PyClass(Beer))
     amount: ir.SSAValue = info.argument(types.Int)
+    result: ir.ResultValue = info.result(types.PyClass(Pints))
+
+
+@statement(dialect=dialect)
+class Drink(ir.Statement):
+    traits = frozenset({ir.FromPythonCall()})
+    pints: ir.SSAValue = info.argument(types.PyClass(Pints))
+
+
+@statement(dialect=dialect)
+class Puke(ir.Statement):
+    traits = frozenset({ir.FromPythonCall()})
 
 
 @statement(dialect=dialect)
@@ -37,9 +41,3 @@ class RandomBranch(ir.Statement):
     else_arguments: tuple[ir.SSAValue, ...] = info.argument()
     then_successor: ir.Block = info.block()
     else_successor: ir.Block = info.block()
-
-
-@statement(dialect=dialect)
-class Puke(ir.Statement):
-    name = "puke"
-    traits = frozenset({ir.FromPythonCall()})

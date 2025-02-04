@@ -1,6 +1,6 @@
 from random import randint
 
-from attrs import Beer
+from attrs import Beer, Pints
 from stmts import Pour, Puke, Drink, NewBeer, RandomBranch
 from dialect import dialect
 
@@ -12,17 +12,21 @@ class BeerMethods(MethodTable):
 
     @impl(NewBeer)
     def new_beer(self, interp: Interpreter, frame: Frame, stmt: NewBeer):
-        return (Beer(frame.get(stmt.brand)),)
+        return (Beer(stmt.brand),)
 
     @impl(Drink)
     def drink(self, interp: Interpreter, frame: Frame, stmt: Drink):
-        print(f"Drinking {frame.get(stmt.beverage).brand}")
+        pints: Pints = frame.get(stmt.pints)
+        print(f"Drinking {pints.amount} pints of {pints.kind.brand}")
         return ()
 
     @impl(Pour)
     def pour(self, interp: Interpreter, frame: Frame, stmt: Pour):
-        print(f"Pouring {frame.get(stmt.beverage).brand} {frame.get(stmt.amount)}")
-        return ()
+        beer: Beer = frame.get(stmt.beverage)
+        amount: int = frame.get(stmt.amount)
+        print(f"Pouring {beer.brand} {amount}")
+
+        return (Pints(beer, amount),)
 
     @impl(Puke)
     def puke(self, interp: Interpreter, frame: Frame, stmt: Puke):
