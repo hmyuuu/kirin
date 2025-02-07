@@ -18,7 +18,6 @@ class Lowering(lowering.FromPythonAST):
         state.push_frame(body_frame)
         state.exhaust(body_frame)
         state.pop_frame(finalize_next=False)  # NOTE: scf does not have multiple blocks
-        body_frame.curr_region.print()
 
         else_frame = lowering.Frame.from_stmts(
             node.orelse, state, globals=frame.globals

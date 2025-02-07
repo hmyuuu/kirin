@@ -30,7 +30,6 @@ class TypeInfer(interp.MethodTable):
     def getitem_list_int(
         self, interp, frame: interp.Frame[types.TypeAttribute], stmt: GetItem
     ):
-        print("pass ====")
         obj = frame.get(stmt.obj)
         obj_type = types.unwrap_hinted(obj)
         if isinstance(obj_type, types.Generic):
