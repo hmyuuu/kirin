@@ -4,6 +4,10 @@ from kirin.analysis import ForwardFrame, const
 from .stmts import For, Yield, IfElse
 from ._dialect import dialect
 
+# NOTE: unlike concrete interpreter, we need to use a new frame
+# for each iteration because otherwise join two constant values
+# will result in bottom (error) element.
+
 
 @dialect.register(key="constprop")
 class DialectConstProp(interp.MethodTable):
@@ -26,15 +30,21 @@ class DialectConstProp(interp.MethodTable):
     ):
         cond = frame.get(stmt.cond)
         if isinstance(cond.const, const.Value):
-            if cond.const.data:
-                results = interp_.run_ssacfg_region(frame, stmt.then_body)
-            else:
-                results = interp_.run_ssacfg_region(frame, stmt.else_body)
+            with interp_.state.new_frame(interp_.new_frame(stmt)) as body_frame:
+                body_frame.entries.update(frame.entries)
+                if cond.const.data:
+                    results = interp_.run_ssacfg_region(body_frame, stmt.then_body)
+                else:
+                    results = interp_.run_ssacfg_region(body_frame, stmt.else_body)
         else:
-            results = interp_.join_results(
-                interp_.run_ssacfg_region(frame, stmt.then_body),
-                interp_.run_ssacfg_region(frame, stmt.else_body),
-            )
+            with interp_.state.new_frame(interp_.new_frame(stmt)) as body_frame:
+                body_frame.entries.update(frame.entries)
+                then_results = interp_.run_ssacfg_region(body_frame, stmt.then_body)
+
+            with interp_.state.new_frame(interp_.new_frame(stmt)) as body_frame:
+                body_frame.entries.update(frame.entries)
+                else_results = interp_.run_ssacfg_region(body_frame, stmt.else_body)
+            results = interp_.join_results(then_results, else_results)
 
         return results
 
@@ -51,12 +61,14 @@ class DialectConstProp(interp.MethodTable):
 
         if isinstance(iterable.const, const.Value):
             for value in iterable.const.data:
-                frame.set_values(
-                    block_args,
-                    (const.JointResult(const.Value(value), iterable.purity),)
-                    + loop_vars,
-                )
-                loop_vars = interp_.run_ssacfg_region(frame, stmt.body)
+                with interp_.state.new_frame(interp_.new_frame(stmt)) as body_frame:
+                    body_frame.entries.update(frame.entries)
+                    body_frame.set_values(
+                        block_args,
+                        (const.JointResult(const.Value(value), iterable.purity),)
+                        + loop_vars,
+                    )
+                    loop_vars = interp_.run_ssacfg_region(body_frame, stmt.body)
                 if loop_vars is None:
                     loop_vars = ()
                 elif isinstance(loop_vars, interp.ReturnValue):
