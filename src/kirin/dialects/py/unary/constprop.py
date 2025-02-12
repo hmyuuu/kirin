@@ -10,14 +10,11 @@ class ConstProp(interp.MethodTable):
 
     @interp.impl(stmts.Not)
     def not_(
-        self, _: const.Propagate, frame: interp.Frame, stmt: stmts.Not
-    ) -> interp.StatementResult[const.JointResult]:
-        from kirin.dialects.py import tuple
-
-        if isinstance(stmt.value.owner, tuple.New):
-            ret = const.Value(len(stmt.value.owner.args) == 0)
-        elif isinstance(value := frame.get(stmt.value), const.Value):
-            ret = const.Value(not value.data)
+        self, _: const.Propagate, frame: const.Frame, stmt: stmts.Not
+    ) -> interp.StatementResult[const.Result]:
+        hint = frame.get(stmt.value)
+        if isinstance(hint, (const.PartialTuple, const.Value)):
+            ret = const.Value(not hint.data)
         else:
             ret = const.Unknown()
-        return (const.JointResult(ret, const.Pure()),)
+        return (ret,)

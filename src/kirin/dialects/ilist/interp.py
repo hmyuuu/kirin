@@ -1,4 +1,4 @@
-from kirin import ir
+from kirin import ir, types
 from kirin.interp import Frame, Interpreter, MethodTable, impl
 from kirin.dialects.py.len import Len
 from kirin.dialects.py.binop import Add
@@ -20,11 +20,11 @@ class IListInterpreter(MethodTable):
     def new(self, interp, frame: Frame, stmt: New):
         return (IList(list(frame.get_values(stmt.values))),)
 
-    @impl(Len, ir.types.PyClass(IList))
+    @impl(Len, types.PyClass(IList))
     def len(self, interp, frame: Frame, stmt: Len):
         return (len(frame.get(stmt.value).data),)
 
-    @impl(Add, ir.types.PyClass(IList), ir.types.PyClass(IList))
+    @impl(Add, types.PyClass(IList), types.PyClass(IList))
     def add(self, interp, frame: Frame, stmt: Add):
         return (IList(frame.get(stmt.lhs).data + frame.get(stmt.rhs).data),)
 
@@ -39,7 +39,8 @@ class IListInterpreter(MethodTable):
         ret = []
         for elem in coll.data:
             # NOTE: assume fn has been type checked
-            ret.append(interp.run_method(fn, (elem,)))
+            _, item = interp.run_method(fn, (elem,))
+            ret.append(item)
         return (IList(ret),)
 
     @impl(Scan)
@@ -52,7 +53,7 @@ class IListInterpreter(MethodTable):
         ys = []
         for elem in coll.data:
             # NOTE: assume fn has been type checked
-            carry, y = interp.run_method(fn, (carry, elem))
+            _, (carry, y) = interp.run_method(fn, (carry, elem))
             ys.append(y)
         return ((carry, IList(ys)),)
 
@@ -71,7 +72,7 @@ class IListInterpreter(MethodTable):
         acc = init
         for elem in coll:
             # NOTE: assume fn has been type checked
-            acc = interp.run_method(fn, (acc, elem))
+            _, acc = interp.run_method(fn, (acc, elem))
         return (acc,)
 
     @impl(ForEach)

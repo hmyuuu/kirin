@@ -16,7 +16,7 @@ def basic(self):
         mt: ir.Method,
     ) -> None:
         aggressive_fold_pass.fixpoint(mt)
-        rewrite.Fixpoint(rewrite.Walk(ilist.rewrite.RewriteHinted())).rewrite(mt.code)
+        rewrite.Fixpoint(rewrite.Walk(ilist.rewrite.ConstList2IList())).rewrite(mt.code)
         typeinfer_pass(mt)
 
     return run_pass
@@ -53,11 +53,11 @@ def test_ilist_fcf():
 
     @basic
     def map(xs: ilist.IList[int, Literal[3]]):
-        return ilist.Map(add1, xs)  # type: ignore
+        return ilist.map(add1, xs)
 
     @basic
     def foreach(xs: ilist.IList[int, Literal[3]]):
-        ilist.ForEach(add1, xs)  # type: ignore
+        ilist.for_each(add1, xs)
 
     map_before = map(xs)
     foreach_before = foreach(xs)
@@ -159,3 +159,11 @@ def test_ilist_range():
         return range(0, 3)
 
     assert const_range() == ilist.IList(range(0, 3))
+
+
+@basic
+def main(xs: ilist.IList[int, Literal[3]]):
+    return xs + [4, 5, 6] + xs
+
+
+main.print()

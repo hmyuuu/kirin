@@ -1,17 +1,18 @@
 # type: ignore
 from kirin import ir, types
 from kirin.decl import info, statement
+from kirin.passes import Fold
 from kirin.prelude import basic_no_opt
-from kirin.rewrite import Walk, Chain, Fixpoint
+from kirin.rewrite import Walk, Fixpoint, WrapConst
 from kirin.analysis import const
 from kirin.dialects.py import constant
 from kirin.rewrite.dce import DeadCodeElimination
 from kirin.rewrite.fold import ConstantFold
 from kirin.rewrite.inline import Inline
-from kirin.rewrite.getitem import InlineGetItem
 from kirin.rewrite.getfield import InlineGetField
 from kirin.rewrite.compactify import CFGCompactify
-from kirin.rewrite.call2invoke import Call2Invoke
+
+fold_pass = Fold(basic_no_opt)
 
 
 @basic_no_opt
@@ -51,23 +52,9 @@ def inline_closure():
 
 
 def test_inline_closure():
-    constprop = const.Propagate(inline_closure.dialects)
-    results, ret = constprop.run_analysis(inline_closure)
-    Fixpoint(
-        Walk(
-            Chain(
-                [
-                    ConstantFold(results),
-                    Call2Invoke(results),
-                    DeadCodeElimination(results),
-                ]
-            )
-        )
-    ).rewrite(inline_closure.code)
+    fold_pass.fixpoint(inline_closure)
     Walk(Inline(heuristic=lambda x: True)).rewrite(inline_closure.code)
-    compactify = CFGCompactify()
-    Fixpoint(compactify).rewrite(inline_closure.code)
-    Fixpoint(Walk(DeadCodeElimination(results))).rewrite(inline_closure.code)
+    fold_pass.fixpoint(inline_closure)
     inline_closure.code.print()
     stmt = inline_closure.callable_region.blocks[0].stmts.at(0)
     assert isinstance(stmt, constant.Constant)
@@ -93,38 +80,12 @@ def inline_foldl(x):
 
 
 def test_inline_constprop():
-    def fold():
-        constprop = const.Propagate(inline_foldl.dialects)
-        results, _ = constprop.run_analysis(inline_foldl)
-        Fixpoint(
-            Walk(
-                Chain(
-                    [
-                        ConstantFold(results),
-                        InlineGetItem(results),
-                        Call2Invoke(results),
-                        DeadCodeElimination(results),
-                    ]
-                )
-            )
-        ).rewrite(inline_foldl.code)
-        compactify = Fixpoint(CFGCompactify())
-        compactify.rewrite(inline_foldl.code)
-        Fixpoint(Walk(DeadCodeElimination(results))).rewrite(inline_foldl.code)
-
-    Walk(Inline(heuristic=lambda x: True)).rewrite(inline_foldl.code)
-    fold()
-    Walk(Inline(heuristic=lambda x: True)).rewrite(inline_foldl.code)
-    fold()
-    Walk(Inline(heuristic=lambda x: True)).rewrite(inline_foldl.code)
-    fold()
-    Walk(Inline(heuristic=lambda x: True)).rewrite(inline_foldl.code)
-    fold()
-    Walk(Inline(heuristic=lambda x: True)).rewrite(inline_foldl.code)
-    fold()
+    for _ in range(5):
+        Walk(Inline(heuristic=lambda x: True)).rewrite(inline_foldl.code)
+        fold_pass.fixpoint(inline_foldl)
+    # inline_foldl.print(hint="const")
     assert len(inline_foldl.callable_region.blocks) == 1
     assert inline_foldl(2) == 6
-    inline_foldl.print()
 
 
 def test_inline_single_entry():
@@ -193,8 +154,9 @@ def test_inline_non_foldable_closure():
     inline = Walk(Inline(lambda _: True))
     inline.rewrite(main.code)
     constprop = const.Propagate(basic_no_opt)
-    constprop.run_analysis(main)
-    ConstantFold(constprop.results).rewrite(main.code)
+    frame, _ = constprop.run_analysis(main)
+    Walk(Fixpoint(WrapConst(frame))).rewrite(main.code)
+    ConstantFold().rewrite(main.code)
     compact = Fixpoint(CFGCompactify())
     compact.rewrite(main.code)
     inline.rewrite(main.code)
@@ -202,9 +164,10 @@ def test_inline_non_foldable_closure():
     compact.rewrite(main.code)
     Fixpoint(Walk(InlineGetField())).rewrite(main.code)
     constprop = const.Propagate(basic_no_opt)
-    constprop.run_analysis(main, ())
-    Walk(DeadCodeElimination(constprop.results)).rewrite(main.code)
-    main.print(analysis=constprop.results)
+    frame, ret = constprop.run_analysis(main, ())
+    Walk(Fixpoint(WrapConst(frame))).rewrite(main.code)
+    Walk(DeadCodeElimination()).rewrite(main.code)
+    main.print(analysis=frame.entries)
 
     @basic_no_opt.add(dialect)
     def target():

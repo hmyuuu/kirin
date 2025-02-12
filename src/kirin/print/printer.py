@@ -83,6 +83,8 @@ class Printer:
     """Rich console"""
     analysis: dict["ir.SSAValue", Any] | None = None
     """Analysis results"""
+    hint: str | None = None
+    """key of the SSAValue hint to print"""
     state: PrintState = field(default_factory=PrintState)
     """Printing state"""
     show_indent_mark: bool = field(default=True, kw_only=True)
@@ -145,6 +147,17 @@ class Printer:
                             repr(self.analysis[result]) for result in node._results
                         )
                     )
+            if self.hint:
+                with self.rich(style="comment"):
+                    self.plain_print(" # ")
+                    for idx, result in enumerate(node.results):
+                        if result.hints.get(self.hint):
+                            self.plain_print(repr(result.hints.get(self.hint)))
+                        else:
+                            self.plain_print("##")
+
+                        if idx < len(node.results) - 1:
+                            self.plain_print(", ")
 
     def print_dialect_path(
         self, node: Union["ir.Attribute", "ir.Statement"], prefix: str = ""
@@ -239,7 +252,7 @@ class Printer:
         self.plain_print(prefix, style=style, highlight=highlight)
         for idx, item in enumerate(seq):
             if idx > 0:
-                self.plain_print(delim)
+                self.plain_print(delim, style=style)
             emit(item)
         self.plain_print(suffix, style=style, highlight=highlight)
 
