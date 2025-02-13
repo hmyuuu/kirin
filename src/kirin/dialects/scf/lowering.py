@@ -15,6 +15,9 @@ class Lowering(lowering.FromPythonAST):
         cond = state.visit(node.test).expect_one()
         frame = state.current_frame
         body_frame = lowering.Frame.from_stmts(node.body, state, globals=frame.globals)
+        then_cond = body_frame.curr_block.args.append_from(types.Bool, cond.name)
+        if cond.name:
+            body_frame.defs[cond.name] = then_cond
         state.push_frame(body_frame)
         state.exhaust(body_frame)
         state.pop_frame(finalize_next=False)  # NOTE: scf does not have multiple blocks
@@ -22,6 +25,9 @@ class Lowering(lowering.FromPythonAST):
         else_frame = lowering.Frame.from_stmts(
             node.orelse, state, globals=frame.globals
         )
+        else_cond = else_frame.curr_block.args.append_from(types.Bool, cond.name)
+        if cond.name:
+            else_frame.defs[cond.name] = else_cond
         state.push_frame(else_frame)
         state.exhaust(else_frame)
         state.pop_frame(finalize_next=False)  # NOTE: scf does not have multiple blocks
@@ -96,7 +102,11 @@ class Lowering(lowering.FromPythonAST):
         unpacking(state, node.target, loop_var)
         state.exhaust(body_frame)
         # NOTE: this frame won't have phi nodes
-        body_frame.append_stmt(Yield(*[body_frame.defs[name] for name in yields]))  # type: ignore
+        if yields and (
+            body_frame.curr_block.last_stmt is None
+            or not body_frame.curr_block.last_stmt.has_trait(ir.IsTerminator)
+        ):
+            body_frame.append_stmt(Yield(*[body_frame.defs[name] for name in yields]))  # type: ignore
         state.pop_frame(finalize_next=False)  # NOTE: scf does not have multiple blocks
 
         initializers: list[ir.SSAValue] = []

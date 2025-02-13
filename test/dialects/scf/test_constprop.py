@@ -1,28 +1,18 @@
-from kirin import ir
-from kirin.prelude import python_basic
+from kirin.prelude import structural_no_opt
 from kirin.analysis import const
-from kirin.dialects import py, scf, func, ilist, lowering
+from kirin.dialects import scf, func
 
-
-@ir.dialect_group(
-    python_basic.union([py.range, ilist, scf, func, lowering.func, lowering.call])
-)
-def kernel(self):
-    def run_pass(method):
-        pass
-
-    return run_pass
+prop = const.Propagate(structural_no_opt)
 
 
 def test_simple_loop():
-    @kernel
+    @structural_no_opt
     def main():
         x = 0
         for i in range(2):
             x = x + 1
         return x
 
-    prop = const.Propagate(kernel)
     frame, ret = prop.run_analysis(main)
     assert isinstance(ret, const.Value)
     assert ret.data == 2
@@ -30,7 +20,7 @@ def test_simple_loop():
 
 
 def test_nested_loop():
-    @kernel
+    @structural_no_opt
     def main():
         x = 0
         for i in range(2):
@@ -38,7 +28,6 @@ def test_nested_loop():
                 x = x + 1
         return x
 
-    prop = const.Propagate(kernel)
     frame, ret = prop.run_analysis(main)
     assert isinstance(ret, const.Value)
     assert ret.data == 6
@@ -46,7 +35,7 @@ def test_nested_loop():
 
 
 def test_nested_loop_with_if():
-    @kernel
+    @structural_no_opt
     def main():
         x = 0
         for i in range(2):
@@ -55,7 +44,6 @@ def test_nested_loop_with_if():
                     x = x + 1
         return x
 
-    prop = const.Propagate(kernel)
     frame, ret = prop.run_analysis(main)
     assert isinstance(ret, const.Value)
     assert ret.data == 3
@@ -63,7 +51,7 @@ def test_nested_loop_with_if():
 
 
 def test_nested_loop_with_if_else():
-    @kernel
+    @structural_no_opt
     def main():
         x = 0
         for i in range(2):
@@ -75,8 +63,40 @@ def test_nested_loop_with_if_else():
                     x = x + 1
         return x
 
-    prop = const.Propagate(kernel)
     frame, ret = prop.run_analysis(main)
     assert isinstance(ret, const.Value)
     assert ret.data == 5
     assert frame.frame_is_not_pure is False
+
+
+def test_inside_return():
+    @structural_no_opt
+    def simple_loop(x: float):
+        for i in range(0, 3):
+            return i
+        return x
+
+    frame, ret = prop.run_analysis(simple_loop)
+    assert isinstance(ret, const.Value)
+    assert ret.data == 0
+
+    # def test_simple_ifelse():
+    @structural_no_opt
+    def simple_ifelse(x: int):
+        cond = x > 0
+        if cond:
+            return cond
+        else:
+            return 0
+
+    simple_ifelse.print()
+    frame, ret = prop.run_analysis(simple_ifelse)
+    ifelse = simple_ifelse.callable_region.blocks[0].stmts.at(2)
+    assert isinstance(ifelse, scf.IfElse)
+    terminator = ifelse.then_body.blocks[0].last_stmt
+    assert isinstance(terminator, func.Return)
+    assert isinstance(frame.entries[terminator.value], const.Value)
+    terminator = ifelse.else_body.blocks[0].last_stmt
+    assert isinstance(terminator, func.Return)
+    assert isinstance(value := frame.entries[terminator.value], const.Value)
+    assert value.data == 0
