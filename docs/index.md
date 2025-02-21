@@ -9,7 +9,7 @@
 </div>
 </div>
 
-Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure developed at [QuEra Computing Inc](https://quera.com). It is a compiler infrastructure for building compilers for embedded domain-specific languages (eDSLs) that target scientific computing kernels especially for quantum computing use cases where domain-knowledge in quantum computation is critical in the implementation of a compiler. This is also the infrastructure that powers the [Bloqade SDK](https://bloqade.quera.com).
+Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure developed. It is a compiler infrastructure for building compilers for embedded domain-specific languages (eDSLs) that target scientific computing kernels especially for quantum computing use cases where domain-knowledge in quantum computation is critical in the implementation of a compiler.
 
 ## Installation
 
@@ -37,7 +37,7 @@ Kirin empowers scientists to build tailored embedded domain-specific languages (
 
 2. **Focused Scope** Unlike generic compiler frameworks, Kirin deliberately narrows its focus to scientific applications. It specializes in high-level, structurally oriented eDSLs—optimized for concise, kernel-style functions that form the backbone of computational workflows.
 
-3. **Composability as a Foundation** Science thrives on interdisciplinary collaboration. Kirin treats composability—the modular integration of systems and components—as a first-class design principle. This ensures eDSLs and their compilers can seamlessly interact, mirroring the interconnected nature of scientific domains.
+3. **Composability as a Foundation** Science thrives on interdisciplinary collaboration. Kirin treats composability — the modular integration of systems and components—as a first-class design principle. This ensures eDSLs and their compilers can seamlessly interact, mirroring the interconnected nature of scientific domains.
 
 For the interested, please read the [Kirin blog post](blog/2024/11/11/kirins-mission/) blog post for more details.
 
@@ -322,6 +322,10 @@ def food(self): # (2)!
 This is it!
 
 For further advanced use case see [`CookBook/Food`](cookbook/beer_dialect/control_flow_rewrite.md)
+
+## Contributors
+
+- [QuEra Computing Inc](https://quera.com)
 
 ## License
 
