@@ -76,6 +76,8 @@ nav:
 
 theme:
   name: material
+  favicon: assets/favicon.ico
+  logo: assets/logo-small-white.svg
   palette:
     - scheme: default
       primary: custom
