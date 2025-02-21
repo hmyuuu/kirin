@@ -1,4 +1,13 @@
-# Kirin
+<div align="center">
+<picture>
+  <img id="logo_light_mode" src="assets/logo-black-horizontal.svg" style="width: 70%" alt="Kirin Logo">
+  <img id="logo_dark_mode" src="assets/logo-white-horizontal.svg" style="width: 70%" alt="Kirin Logo">
+</picture>
+<!--pad the following div a bit top-->
+<div style="padding-top: -100px">
+<h2>Kernel Intermediate Representation Infrastructure</h2>
+</div>
+</div>
 
 Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure developed at [QuEra Computing Inc](https://quera.com). It is a compiler infrastructure for building compilers for embedded domain-specific languages (eDSLs) that target scientific computing kernels especially for quantum computing use cases where domain-knowledge in quantum computation is critical in the implementation of a compiler. This is also the infrastructure that powers the [Bloqade SDK](https://bloqade.quera.com).
 
