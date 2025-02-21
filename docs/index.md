@@ -2,6 +2,14 @@
 
 Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure developed at [QuEra Computing Inc](https://quera.com). It is a compiler infrastructure for building compilers for embedded domain-specific languages (eDSLs) that target scientific computing kernels especially for quantum computing use cases where domain-knowledge in quantum computation is critical in the implementation of a compiler. This is also the infrastructure that powers the [Bloqade SDK](https://bloqade.quera.com).
 
+## Installation
+
+```bash
+pip install kirin-toolchain
+```
+
+See [Installation](install.md) for more details.
+
 ## Features
 
 - [MLIR](https://mlir.llvm.org/)-like dialects as composable python packages
