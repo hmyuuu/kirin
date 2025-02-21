@@ -72,6 +72,7 @@ nav:
           - IdTable: reference/kirin/idtable.md
           - Source: reference/kirin/source.md
           - WorkList: reference/kirin/worklist.md
+  - About QuEra Computing: 'https://quera.com'
 
 theme:
   name: material
