@@ -31,10 +31,10 @@ nav:
   - Cookbook:
     - cookbook/index.md
     - examples:
-      - Beer Dialect:
-        - Advance Rewrite: cookbook/beer_dialect/cf_rewrite.md
-        - Beer Price Analysis: cookbook/beer_dialect/analysis.md
-        - Recept Codegen: cookbook/beer_dialect/codegen.md
+      - Food Dialect:
+        - Advance Rewrite: cookbook/foodlang/cf_rewrite.md
+        - Food Price Analysis: cookbook/foodlang/analysis.md
+        - Recept Codegen: cookbook/foodlang/codegen.md
 
   - Blog:
     - blog/index.md
