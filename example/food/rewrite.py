@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from stmts import Nap, Eat, NewFood, RandomBranch
+from stmts import Eat, Nap, NewFood, RandomBranch
 
 from kirin import ir
 from kirin.dialects import cf

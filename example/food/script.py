@@ -1,6 +1,6 @@
 # type: ignore
 from group import food
-from stmts import Cook, Nap, Eat, NewFood
+from stmts import Eat, Nap, Cook, NewFood
 from recept import FeeAnalysis
 
 from emit import EmitReceptMain

@@ -1,7 +1,7 @@
 from dataclasses import field, dataclass
 
 from attrs import Food
-from stmts import Cook, Nap, NewFood
+from stmts import Nap, Cook, NewFood
 from dialect import dialect
 
 from kirin import ir, interp

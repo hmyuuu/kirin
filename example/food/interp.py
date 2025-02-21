@@ -1,7 +1,7 @@
 from random import randint
 
 from attrs import Food, Serving
-from stmts import Cook, Nap, Eat, NewFood, RandomBranch
+from stmts import Eat, Nap, Cook, NewFood, RandomBranch
 from dialect import dialect
 
 from kirin.interp import Frame, Successor, Interpreter, MethodTable, impl
