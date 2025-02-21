@@ -1,29 +1,28 @@
 # Kirin
 
-Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure. It is a compiler
-infrastructure for building compilers for embedded domain-specific languages (eDSLs) that target
-scientific computing kernels.
+Kirin is the **K**ernel **I**ntermediate **R**epresentation **In**frastructure developed at [QuEra Computing Inc](https://quera.com). It is a compiler infrastructure for building compilers for embedded domain-specific languages (eDSLs) that target scientific computing kernels especially for quantum computing use cases where domain-knowledge in quantum computation is critical in the implementation of a compiler. This is also the infrastructure that powers the [Bloqade SDK](https://bloqade.quera.com).
 
 ## Features
 
-- MLIR-like dialects as composable python packages
+- [MLIR](https://mlir.llvm.org/)-like dialects as composable python packages
 - Generated Python frontend for your DSLs
 - Pythonic API for building compiler passes
-- Julia-like abstract interpretation framework
+- [Julia](https://julialang.org)-like abstract interpretation framework
 - Builtin support for interpretation
 - Builtin support Python type system and type inference
 - Type hinted via modern Python type hints
 
 ## Kirin's mission
 
-Compiler toolchain for scientists. Scientists are building domain-specific languages (DSLs) for
-scientific purposes. Most scientists do not have any compiler engineering background. On the other hand,
-these DSLs are often high-level, and their instructions are usually slower than the low-level instructions
-and thus result in smaller programs. No need to generate high quality LLVM IR/native binary most of the time!
-So there are some chances to simplify terminologies, interfaces for the none-pros, while allowing good
-interactivity and fast prototyping.
+Kirin empowers scientists to build tailored embedded domain-specific languages (eDSLs) by adhering to three core principles:
 
-For the interested, please read the [Kirin's Mission](blog/2024/11/11/kirins-mission/) blog post for more details.
+1. **Scientists First** Kirin prioritizes enabling researchers to create compilers for scientific challenges. The toolchain is designed *by* and *for* domain experts, ensuring practicality and alignment with real-world research needs.
+
+2. **Focused Scope** Unlike generic compiler frameworks, Kirin deliberately narrows its focus to scientific applications. It specializes in high-level, structurally oriented eDSLs—optimized for concise, kernel-style functions that form the backbone of computational workflows.
+
+3. **Composability as a Foundation** Science thrives on interdisciplinary collaboration. Kirin treats composability—the modular integration of systems and components—as a first-class design principle. This ensures eDSLs and their compilers can seamlessly interact, mirroring the interconnected nature of scientific domains.
+
+For the interested, please read the [Kirin blog post](blog/2024/11/11/kirins-mission/) blog post for more details.
 
 ## Acknowledgement
 
@@ -35,11 +34,17 @@ While the mission and audience may be very different, Kirin has been deeply insp
 - [JAX](https://jax.readthedocs.io/en/latest/) and [numba](https://numba.pydata.org/), the frontend syntax and the way it is designed.
 - [Symbolics.jl](https://github.com/JuliaSymbolics/Symbolics.jl) and its predecessors, the design of rule-based rewriter.
 
+## Kirin and friends
+
+Kirin has been used for building several eDSLs, including:
+
+- the QASM2 eDSL and its extensions for neutral atom in [Bloqade](https://bloqade.quera.com)
+
+We are in the process of open-sourcing more eDSLs built on top of Kirin.
+
 ## Quick Example: the `food` language
 
-In this example, we will mutate python's semantics to
-support a small eDSL (embedded domain-specific language) called `food`.
-It describes the process of cooking, eating food and taking food naps after.
+For the impatient, we prepare an example that requires no background knowledge in any specific domain. In this example, we will mutate python's semantics to support a small eDSL (embedded domain-specific language) called `food`. It describes the process of cooking, eating food and taking food naps after.
 
 Before we start, let's take a look at what would our `food` language look like:
 
