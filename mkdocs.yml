@@ -26,7 +26,7 @@ nav:
         - Structural Control Flow: dialects/scf.md
         - Immutable List: dialects/ilist.md
       - Compiler 101: 101.md
-      - Comparison: comparison.md
+      # - Comparison: comparison.md
       - Contributing: contrib.md
   - Cookbook:
     - cookbook/index.md
