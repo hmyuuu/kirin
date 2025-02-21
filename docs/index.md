@@ -51,6 +51,8 @@ While the mission and audience may be very different, Kirin has been deeply insp
 - [JAX](https://jax.readthedocs.io/en/latest/) and [numba](https://numba.pydata.org/), the frontend syntax and the way it is designed.
 - [Symbolics.jl](https://github.com/JuliaSymbolics/Symbolics.jl) and its predecessors, the design of rule-based rewriter.
 
+Part of the work is also inspired in previous collaboration in [YaoCompiler](https://github.com/QuantumBFS/YaoCompiler.jl), thus we would like to thank [Valentin Churavy](https://github.com/vchuravy) and [William Moses](https://github.com/wsmoses) for early discussions around the compiler plugin topic. We thank early support of the YaoCompiler project from [Unitary Foundation](https://unitary.foundation/).
+
 ## Kirin and friends
 
 Kirin has been used for building several eDSLs, including:
