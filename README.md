@@ -6,11 +6,10 @@
 
 *K*ernel *I*ntermediate *R*epresentation *IN*frastructure
 
-_The multi-level intermediate representation (MLIR) compiler for high-level semantics in Python._
-
 > [!IMPORTANT]
 >
 > This project is in the early stage of development. API and features are subject to change.
+> If you are concerned about the stability of the APIs, consider pin the version of Kirin in your project.
 
 ## Installation
 
@@ -18,6 +17,12 @@ _The multi-level intermediate representation (MLIR) compiler for high-level sema
 
 ```py
 uv add kirin-toolchain
+```
+
+### Install via pip
+
+```bash
+pip install kirin-toolchain
 ```
 
 ## License
