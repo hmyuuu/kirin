@@ -55,7 +55,7 @@ Part of the work is also inspired in previous collaboration in [YaoCompiler](htt
 
 ## Kirin and friends
 
-While at the moment only us at [QuEra Computing Inc](https://quera.com) are actively developing Kirin and using it in our projects, we are open to collaboration and contributions from the community.
+While at the moment only us at [QuEra Computing Inc](https://quera.com) are actively developing Kirin and using it in our projects, we are open to collaboration and contributions from the community. If you are using Kirin in your project, please let us know so we can add you to the list of projects using Kirin.
 
 ### Quantum Computing
 
