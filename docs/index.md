@@ -55,9 +55,15 @@ Part of the work is also inspired in previous collaboration in [YaoCompiler](htt
 
 ## Kirin and friends
 
-Kirin has been used for building several eDSLs, including:
+While at the moment only us at [QuEra Computing Inc](https://quera.com) are actively developing Kirin and using it in our projects, we are open to collaboration and contributions from the community.
 
-- the QASM2 eDSL and its extensions for neutral atom in [Bloqade](https://bloqade.quera.com)
+### Quantum Computing
+
+Kirin has been used for building several eDSLs within [QuEraComputing](https://quera.com), including:
+
+- [bloqade.qasm2](https://github.com/QuEraComputing/bloqade/tree/main/src/bloqade/qasm2) This is an eDSL for quantum computing that we uses Kirin to define an eDSL for the Quantum Assembly Language (QASM) 2.0. It demonstrates how to create multiple dialects, run custom analysis and rewrites, and generate code from the dialects (back to QASM 2.0 in this case).
+- [bloqade.stim](https://github.com/QuEraComputing/bloqade/tree/main/src/bloqade/stim) This is an eDSL for quantum computing that we uses Kirin to define an eDSL for the [STIM](https://github.com/quantumlib/Stim/) language. It demonstrates how to create multiple dialects, run custom analysis and rewrites, and generate code from the dialects (back to Stim in this case).
+- [bloqade.qBraid](https://github.com/QuEraComputing/bloqade/blob/main/src/bloqade/qbraid/lowering.py) this example demonstrates how to lower from an existing representation into Kirin IR by using the visitor pattern.
 
 We are in the process of open-sourcing more eDSLs built on top of Kirin.
 
