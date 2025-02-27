@@ -35,12 +35,17 @@ class ForwardExtra(
         self,
         method: ir.Method,
         args: tuple[LatticeElemType, ...] | None = None,
+        *,
+        no_raise: bool = True,
     ) -> tuple[ForwardFrameType, LatticeElemType]:
         """Run the forward dataflow analysis.
 
         Args:
             method(ir.Method): The method to analyze.
             args(tuple[LatticeElemType]): The arguments to the method. Defaults to tuple of top values.
+
+        Keyword Args:
+            no_raise(bool): If True, return bottom values if the analysis fails. Defaults to True.
 
         Returns:
             ForwardFrameType: The results of the analysis contained in the frame.
@@ -59,9 +64,11 @@ class ForwardExtra(
         sys.setrecursionlimit(self.max_python_recursion_depth)
         try:
             frame, ret = self.run_method(method, args)
-        except interp.InterpreterError:
+        except interp.InterpreterError as e:
             # NOTE: initialize will create new State
             # so we don't need to copy the frames.
+            if not no_raise:
+                raise e
             return self.new_frame(method.code), self.lattice.bottom()
         finally:
             self._eval_lock = False
