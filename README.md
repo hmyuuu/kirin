@@ -29,6 +29,11 @@ pip install kirin-toolchain
 
 The documentation is available at [https://queracomputing.github.io/kirin/latest/](https://queracomputing.github.io/kirin/latest/). We are at an early stage of completing the documentation with more details and examples, so comments and contributions are most welcome!
 
+## Community
+
+- **Slack**: join our [Slack](https://join.slack.com/t/kirin-1lj5658/shared_invite/zt-30qhwg83r-fTUdXF9w47nTiNFgO18X4w)
+- **GitHub Discussions**: discussion board for questions, feature requests, and more. [GitHub Discussions](https://github.com/QuEraComputing/kirin/discussions).
+
 ## Projects using Kirin
 
 ### Quantum Computing
