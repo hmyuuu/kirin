@@ -39,7 +39,7 @@ Kirin empowers scientists to build tailored embedded domain-specific languages (
 
 3. **Composability as a Foundation** Science thrives on interdisciplinary collaboration. Kirin treats composability — the modular integration of systems and components—as a first-class design principle. This ensures eDSLs and their compilers can seamlessly interact, mirroring the interconnected nature of scientific domains.
 
-For the interested, please read the [Kirin blog post](blog/2024/11/11/kirins-mission/) blog post for more details.
+For the interested, please read the [Kirin blog post](blog/posts/2024-nov-11-mission.md) blog post for more details.
 
 ## Acknowledgement
 
