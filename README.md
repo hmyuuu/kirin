@@ -58,6 +58,8 @@ We use github issues to track the roadmap. There are more feature requests and p
 - [ ] Integration with MLIR (IRDL) (#293)
 - [ ] IR serialization + deserialization (#291)
 
+Proposal for the roadmap and feature requests are welcome!
+
 ## License
 
 Apache License 2.0 with LLVM Exceptions
