@@ -44,6 +44,20 @@ We are actively using Kirin at QuEra Computing. Here are some open-source eDSLs 
 - [bloqade.stim](https://github.com/QuEraComputing/bloqade/tree/main/src/bloqade/stim): This is an eDSL for quantum computing that uses Kirin to define an eDSL for the [STIM](https://github.com/quantumlib/Stim/) language. It demonstrates how to create multiple dialects using Kirin, run custom analysis and rewrites, and generate code from the dialects (back to Stim in this case).
 - [bloqade.qBraid](https://github.com/QuEraComputing/bloqade/blob/main/src/bloqade/qbraid/lowering.py): This example demonstrates how to lower from an existing representation into the Kirin IR by using the visitor pattern.
 
+## Roadmap
+
+We use github issues to track the roadmap. There are more feature requests and proposals in the issues. Here are some of the most wanted features we wish to implement before a beta release:
+
+- [x] Initial version of the IR
+- [x] Interpretation framework
+- [x] Basic analysis and transformations (e.g. constant folding, type inference, etc.)
+- [ ] Documentation
+- [ ] proper stack trace for errors (#13)
+- [ ] text format (#199)
+- [ ] Integration with LLVM (#294)
+- [ ] Integration with MLIR (IRDL) (#293)
+- [ ] IR serialization + deserialization (#291)
+
 ## License
 
 Apache License 2.0 with LLVM Exceptions
