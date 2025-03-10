@@ -114,7 +114,9 @@ class PyClassMeta(TypeAttributeMeta):
         super(PyClassMeta, self).__init__(*args, **kwargs)
         self._cache = {}
 
-    def __call__(self, typ):
+    def __call__(self, typ, *, display_name: str | None = None, prefix="py"):
+        display_name = display_name if display_name is not None else typ.__name__
+
         if typ is typing.Any:
             return AnyType()
         elif typ is typing.NoReturn or typ is Never:
@@ -125,10 +127,19 @@ class PyClassMeta(TypeAttributeMeta):
             typ = list
         elif isinstance(typ, TypeVar):
             return hint2type(typ)
-        elif isinstance(typ, type) and typ in self._cache:
+
+        if isinstance(typ, type) and typ in self._cache:
+            obj = self._cache[typ]
+            if display_name != obj.display_name or prefix != obj.prefix:
+                raise ValueError(
+                    f"Type {typ} already registered to {obj.prefix}.{obj.display_name}"
+                )
+
             return self._cache[typ]
 
-        instance = super(PyClassMeta, self).__call__(typ)
+        instance = super(PyClassMeta, self).__call__(
+            typ, display_name=display_name, prefix=prefix
+        )
         self._cache[typ] = instance
         return instance
 
@@ -141,9 +152,19 @@ PyClassType = typing.TypeVar("PyClassType")
 class PyClass(TypeAttribute, typing.Generic[PyClassType], metaclass=PyClassMeta):
     name = "PyClass"
     typ: type[PyClassType]
+    display_name: str
+    prefix: str
 
-    def __init__(self, typ: type[PyClassType]) -> None:
+    def __init__(
+        self,
+        typ: type[PyClassType],
+        *,
+        display_name: str | None = None,
+        prefix: str = "py",
+    ) -> None:
         self.typ = typ
+        self.display_name = display_name if display_name is not None else typ.__name__
+        self.prefix = prefix
 
     def is_subseteq_PyClass(self, other: "PyClass") -> bool:
         return issubclass(self.typ, other.typ)
@@ -170,7 +191,7 @@ class PyClass(TypeAttribute, typing.Generic[PyClassType], metaclass=PyClassMeta)
         return self.typ.__name__
 
     def print_impl(self, printer: Printer) -> None:
-        printer.plain_print("!py.", self.typ.__name__)
+        printer.plain_print(f"!{self.prefix}.", self.display_name)
 
 
 class LiteralMeta(TypeAttributeMeta):
