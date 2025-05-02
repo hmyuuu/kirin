@@ -189,7 +189,7 @@ def test_ilist_constprop():
         return _for_loop(values)  # type: ignore
 
     prop = const.Propagate(basic_no_opt)
-    frame, result = prop.run_analysis(main)
+    frame, result = prop.run(main)
     target_ssa = main.callable_region.blocks[0].stmts.at(-2).results[0]
     target = frame.entries[target_ssa]
     assert isinstance(target, const.Value)
@@ -214,8 +214,30 @@ def test_ilist_constprop():
         return foldl(values), foldr(values)
 
     prop = const.Propagate(basic_no_opt)
-    frame, result = prop.run_analysis(main2)
+    frame, result = prop.run(main2)
     target_ssa = main2.callable_region.blocks[0].stmts.at(-2).results[0]
     target = frame.entries[target_ssa]
     assert isinstance(target, const.Value)
     assert target.data == (6, 6)
+
+
+rule = rewrite.Fixpoint(rewrite.Walk(ilist.rewrite.Unroll()))
+xs = ilist.IList([1, 2, 3])
+
+
+@basic
+def map(xs: ilist.IList[int, Literal[3]]):
+    return ilist.map(add1, xs)
+
+
+@basic_no_opt
+def foreach(xs: ilist.IList[int, Literal[3]]):
+    ilist.for_each(add1, xs)
+
+
+map_before = map(xs)
+foreach_before = foreach(xs)
+rule.rewrite(map.code)
+rule.rewrite(foreach.code)
+map_after = map(xs)
+foreach_after = foreach(xs)

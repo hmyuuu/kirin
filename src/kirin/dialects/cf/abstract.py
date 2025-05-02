@@ -4,8 +4,8 @@ from kirin.analysis.typeinfer import TypeInference
 from kirin.dialects.cf.dialect import dialect
 
 
-@dialect.register(key="typeinfer")
-class TypeInfer(MethodTable):
+@dialect.register(key="abstract")
+class AbstractMethodTable(MethodTable):
 
     @impl(Branch)
     def branch(self, interp: TypeInference, frame: AbstractFrame, stmt: Branch):

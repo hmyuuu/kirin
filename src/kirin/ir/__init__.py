@@ -22,22 +22,25 @@ from kirin.ir.nodes import (
 )
 from kirin.ir.method import Method as Method
 from kirin.ir.traits import (
+    SSACFG as SSACFG,
     Pure as Pure,
     Trait as Trait,
+    HasCFG as HasCFG,
     AttrTrait as AttrTrait,
     HasParent as HasParent,
     MaybePure as MaybePure,
     StmtTrait as StmtTrait,
-    RegionTrait as RegionTrait,
+    RegionGraph as RegionGraph,
     SymbolTable as SymbolTable,
     ConstantLike as ConstantLike,
     HasSignature as HasSignature,
     IsTerminator as IsTerminator,
     NoTerminator as NoTerminator,
-    SSACFGRegion as SSACFGRegion,
     IsolatedFromAbove as IsolatedFromAbove,
     SymbolOpInterface as SymbolOpInterface,
+    EntryPointInterface as EntryPointInterface,
     CallableStmtInterface as CallableStmtInterface,
+    RegionInterpretationTrait as RegionInterpretationTrait,
 )
 from kirin.ir.dialect import Dialect as Dialect
 from kirin.ir.attrs.py import PyAttr as PyAttr

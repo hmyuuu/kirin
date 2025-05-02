@@ -13,7 +13,8 @@ from .abc import (
     Trait as Trait,
     AttrTrait as AttrTrait,
     StmtTrait as StmtTrait,
-    RegionTrait as RegionTrait,
+    RegionGraph as RegionGraph,
+    RegionInterpretationTrait as RegionInterpretationTrait,
 )
 from .basic import (
     Pure as Pure,
@@ -24,9 +25,13 @@ from .basic import (
     NoTerminator as NoTerminator,
     IsolatedFromAbove as IsolatedFromAbove,
 )
-from .symbol import SymbolTable as SymbolTable, SymbolOpInterface as SymbolOpInterface
+from .symbol import (
+    SymbolTable as SymbolTable,
+    SymbolOpInterface as SymbolOpInterface,
+    EntryPointInterface as EntryPointInterface,
+)
 from .callable import (
     HasSignature as HasSignature,
     CallableStmtInterface as CallableStmtInterface,
 )
-from .region.ssacfg import SSACFGRegion as SSACFGRegion
+from .region.ssacfg import SSACFG as SSACFG, HasCFG as HasCFG

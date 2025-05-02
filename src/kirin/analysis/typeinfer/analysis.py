@@ -1,11 +1,15 @@
-from typing import TypeVar, final
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, final
 
 from kirin import ir, types, interp
 from kirin.decl import fields
-from kirin.analysis import const
 from kirin.analysis.forward import Forward, ForwardFrame
 
 from .solve import TypeResolution
+
+if TYPE_CHECKING:
+    from kirin.dialects.func.attrs import Signature
 
 
 @final
@@ -21,72 +25,69 @@ class TypeInference(Forward[types.TypeAttribute]):
     values.
     """
 
-    keys = ["typeinfer"]
+    keys = ("typeinfer",)
     lattice = types.TypeAttribute
 
-    def run_analysis(
-        self,
-        method: ir.Method,
-        args: tuple[types.TypeAttribute, ...] | None = None,
-        *,
-        no_raise: bool = True,
-    ) -> tuple[ForwardFrame[types.TypeAttribute], types.TypeAttribute]:
-        if args is None:
+    def run(self, method: ir.Method, *args, **kwargs):
+        if not args and not kwargs:  # no args or kwargs
+            # use the method signature to get the args
             args = method.arg_types
-        return super().run_analysis(method, args, no_raise=no_raise)
+        return super().run(method, *args, **kwargs)
+
+    def method_self(self, method: ir.Method) -> types.TypeAttribute:
+        return method.self_type
+
+    def frame_call(
+        self,
+        frame: ForwardFrame[types.TypeAttribute],
+        node: ir.Statement,
+        *args: types.TypeAttribute,
+        **kwargs: types.TypeAttribute,
+    ) -> types.TypeAttribute:
+        trait = node.get_present_trait(ir.CallableStmtInterface)
+        args = trait.align_input_args(node, *args, **kwargs)
+        region = trait.get_callable_region(node)
+        if self.state.depth >= self.max_depth:
+            return self.recursion_limit_reached()
+
+        if trait := node.get_trait(ir.HasSignature):
+            signature: Signature[types.TypeAttribute] | None = trait.get_signature(node)
+            args = (args[0],) + tuple(
+                input.meet(arg) for input, arg in zip(signature.inputs, args[1:])
+            )
+        else:
+            signature = None
+        ret = self.frame_call_region(frame, node, region, *args)
+
+        if isinstance(ret, interp.ReturnValue):
+            return ret.value if signature is None else ret.value.meet(signature.output)
+        elif not ret:  # empty result or None
+            return self.void if signature is None else self.void.meet(signature.output)
+        raise interp.InterpreterError(
+            f"callable region {node.name} does not return `ReturnValue`, got {ret}"
+        )
+
+    def eval_fallback(
+        self, frame: ForwardFrame[types.TypeAttribute], node: ir.Statement
+    ) -> interp.StatementResult[types.TypeAttribute]:
+        resolve = TypeResolution()
+        fs = fields(node)
+        for f, value in zip(fs.args.values(), frame.get_values(node.args)):
+            resolve.solve(f.type, value)
+        for arg, f in zip(node.args, fs.args.values()):
+            frame.set(arg, frame.get(arg).meet(resolve.substitute(f.type)))
+        return tuple(resolve.substitute(result.type) for result in node.results)
 
     # NOTE: unlike concrete interpreter, instead of using type information
     # within the IR. Type inference will use the interpreted
     # value (which is a type) to determine the method dispatch.
     def build_signature(
-        self, frame: ForwardFrame[types.TypeAttribute], stmt: ir.Statement
+        self, frame: ForwardFrame[types.TypeAttribute], node: ir.Statement
     ) -> interp.Signature:
-        _args = ()
-        for x in frame.get_values(stmt.args):
-            # TODO: remove this after we have multiple dispatch...
+        argtypes = ()
+        for x in frame.get_values(node.args):
             if isinstance(x, types.Generic):
-                _args += (x.body,)
+                argtypes += (x.body,)
             else:
-                _args += (x,)
-        return interp.Signature(stmt.__class__, _args)
-
-    def eval_stmt_fallback(
-        self, frame: ForwardFrame[types.TypeAttribute], stmt: ir.Statement
-    ) -> tuple[types.TypeAttribute, ...] | interp.SpecialValue[types.TypeAttribute]:
-        resolve = TypeResolution()
-        fs = fields(stmt)
-        for f, value in zip(fs.args.values(), frame.get_values(stmt.args)):
-            resolve.solve(f.type, value)
-        for arg, f in zip(stmt.args, fs.args.values()):
-            frame.set(arg, frame.get(arg).meet(resolve.substitute(f.type)))
-        return tuple(resolve.substitute(result.type) for result in stmt.results)
-
-    def run_method(
-        self, method: ir.Method, args: tuple[types.TypeAttribute, ...]
-    ) -> tuple[ForwardFrame[types.TypeAttribute], types.TypeAttribute]:
-        return self.run_callable(method.code, (method.self_type,) + args)
-
-    T = TypeVar("T")
-
-    @classmethod
-    def maybe_const(cls, value: ir.SSAValue, type_: type[T]) -> T | None:
-        """Get a constant value of a given type.
-
-        If the value is not a constant or the constant is not of the given type, return
-        `None`.
-        """
-        hint = value.hints.get("const")
-        if isinstance(hint, const.Value) and isinstance(hint.data, type_):
-            return hint.data
-
-    @classmethod
-    def expect_const(cls, value: ir.SSAValue, type_: type[T]):
-        """Expect a constant value of a given type.
-
-        If the value is not a constant or the constant is not of the given type, raise
-        an `InterpreterError`.
-        """
-        hint = cls.maybe_const(value, type_)
-        if hint is None:
-            raise interp.InterpreterError(f"expected {type_}, got {hint}")
-        return hint
+                argtypes += (x,)
+        return interp.Signature(type(node), argtypes)
