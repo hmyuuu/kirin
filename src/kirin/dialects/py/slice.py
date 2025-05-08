@@ -13,6 +13,7 @@ from dataclasses import dataclass
 
 from kirin import ir, types, interp, lowering
 from kirin.decl import info, statement
+from kirin.print.printer import Printer
 from kirin.dialects.py.constant import Constant
 
 dialect = ir.Dialect("py.slice")
@@ -62,6 +63,33 @@ class Slice(ir.Statement):
         )
 
 
+@dataclass
+class SliceAttribute(ir.Data[slice]):
+
+    start: int | None
+    stop: int | None
+    step: int | None
+
+    def __post_init__(self) -> None:
+        if self.start is None and self.step is None:
+            self.type = types.Slice[types.Literal(self.stop)]
+        else:
+            self.type = types.Slice3[
+                types.Literal(self.start),
+                types.Literal(self.stop),
+                types.Literal(self.step),
+            ]
+
+    def unwrap(self):
+        return slice(self.start, self.stop, self.step)
+
+    def __hash__(self):
+        return hash((type(self), self.start, self.stop, self.step))
+
+    def print_impl(self, printer: Printer) -> None:
+        return printer.plain_print(f"slice({self.start}, {self.stop}, {self.step})")
+
+
 @dialect.register
 class Concrete(interp.MethodTable):
 
@@ -69,11 +97,11 @@ class Concrete(interp.MethodTable):
     def _slice(self, interp, frame: interp.Frame, stmt: Slice):
         start, stop, step = frame.get_values(stmt.args)
         if start is None and step is None:
-            return (slice(stop),)
+            return (SliceAttribute(None, stop, None),)
         elif step is None:
-            return (slice(start, stop),)
+            return (SliceAttribute(start, stop, None),)
         else:
-            return (slice(start, stop, step),)
+            return (SliceAttribute(start, stop, step),)
 
 
 @dialect.register
