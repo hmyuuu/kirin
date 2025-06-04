@@ -200,45 +200,75 @@ class DialectGroup(Generic[PassParams]):
                 raise ValueError("Cannot compile lambda functions")
 
             lineno_offset, file = 0, ""
+            mt = None
             if frame and frame.f_back is not None:
                 call_site_frame = frame.f_back
                 if py_func.__name__ in call_site_frame.f_locals:
-                    raise CompilerError(
-                        f"overwriting function definition of `{py_func.__name__}`"
-                    )
+                    mt = call_site_frame.f_locals[py_func.__name__]
+                    if not isinstance(mt, Method):
+                        raise CompilerError(
+                            f"`{py_func.__name__}` is already defined in the current scope and is not a Method."
+                        )
 
                 lineno_offset = call_site_frame.f_lineno - 1
                 file = call_site_frame.f_code.co_filename
 
             code = self.lowering.python_function(py_func, lineno_offset=lineno_offset)
             arg_names = ["#self#"] + inspect.getfullargspec(py_func).args
-            mt = Method(
-                dialects=self,
-                code=code,
-                nargs=len(arg_names),
-                mod=inspect.getmodule(py_func),
-                py_func=py_func,
-                sym_name=py_func.__name__,
-                arg_names=arg_names,
-                file=file,
-                lineno_begin=lineno_offset,
-            )
+
+            if mt:
+                mt.mod = inspect.getmodule(py_func)
+                mt.dialects = self
+                mt.code = code
+                mt.py_func = py_func
+                mt.nargs = len(arg_names)
+                mt.arg_names = arg_names
+                mt.sym_name = py_func.__name__
+                mt.file = file
+                mt.lineno_begin = lineno_offset
+                mt.run_passes = self.run_pass
+                mt.update_backedges()  # update the callee
+                self.recompile_callers(mt)
+            else:
+                mt = Method(
+                    dialects=self,
+                    code=code,
+                    nargs=len(arg_names),
+                    mod=inspect.getmodule(py_func),
+                    py_func=py_func,
+                    sym_name=py_func.__name__,
+                    arg_names=arg_names,
+                    file=file,
+                    lineno_begin=lineno_offset,
+                )
+
             if doc := inspect.getdoc(py_func):
                 mt.__doc__ = doc
 
-            if self.run_pass is not None:
-                try:
-                    self.run_pass(mt, *args, **options)
-                except ValidationError as e:
-                    e.attach(mt)
-                    raise e
+            def run_pass(mt: Method) -> None:
+                if self.run_pass is not None:
+                    try:
+                        self.run_pass(mt, *args, **options)
+                    except ValidationError as e:
+                        e.attach(mt)
+                        raise e
 
+            mt.run_passes = run_pass
+            run_pass(mt)
             self.update_symbol_table(mt)
             return mt
 
         if py_func is not None:
             return wrapper(py_func)
         return wrapper
+
+    def recompile_callers(self, method: Method) -> None:
+        for caller in method.backedges:
+            if caller.run_passes:
+                caller.run_passes(caller)
+            # propagate the changes to all callers
+            caller.dialects.recompile_callers(caller)
+        return
 
     def update_symbol_table(self, method: Method) -> None:
         trait = method.code.get_trait(SymbolTable)
