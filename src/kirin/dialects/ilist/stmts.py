@@ -116,6 +116,20 @@ class ForEach(ir.Statement):
 
 
 @statement(dialect=dialect)
+class Any(ir.Statement):
+    traits = frozenset({ir.Pure(), lowering.FromPythonCall()})
+    collection: ir.SSAValue = info.argument(IListType[types.Bool, ListLen])
+    result: ir.ResultValue = info.result(types.Bool)
+
+
+@statement(dialect=dialect)
+class All(ir.Statement):
+    traits = frozenset({ir.Pure(), lowering.FromPythonCall()})
+    collection: ir.SSAValue = info.argument(IListType[types.Bool, ListLen])
+    result: ir.ResultValue = info.result(types.Bool)
+
+
+@statement(dialect=dialect)
 class Sorted(ir.Statement):
     traits = frozenset({ir.MaybePure(), SortedLowering()})
     purity: bool = info.attribute(default=False)

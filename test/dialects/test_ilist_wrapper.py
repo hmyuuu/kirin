@@ -77,6 +77,41 @@ def test_scan_wrapper():
     ]
 
 
+def test_any_all_wrapper():
+
+    @basic
+    def test_any_all():
+        ls = [True, False, False]
+        return ls, ilist.any(ls), ilist.all(ls)
+
+    test_any_all.print()
+
+    ls, any_val, all_val = test_any_all()
+
+    assert isinstance(ls, ilist.IList)
+    assert ls.data == [True, False, False]
+    assert any_val
+    assert not all_val
+
+    @basic
+    def test_any_all2():
+        ls = [False, False]
+        return ilist.any(ls), ilist.all(ls)
+
+    any_val, all_val = test_any_all2()
+    assert not any_val
+    assert not all_val
+
+    @basic
+    def test_any_all3():
+        ls = [True, True, True, True, True]
+        return ilist.any(ls), ilist.all(ls)
+
+    any_val, all_val = test_any_all3()
+    assert any_val
+    assert all_val
+
+
 def test_sorted():
     def key_test(a: int) -> int:
         return a
