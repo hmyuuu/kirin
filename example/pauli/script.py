@@ -1,5 +1,5 @@
-from .group import pauli
-from .stmts import X, Y, Z
+from group import pauli
+from stmts import X, Y, Z
 
 
 @pauli

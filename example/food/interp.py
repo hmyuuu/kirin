@@ -35,7 +35,7 @@ class FoodMethods(MethodTable):
 
     @impl(RandomBranch)
     def random_branch(self, interp: Interpreter, frame: Frame, stmt: RandomBranch):
-        frame = interp.state.current_frame()
+        # frame = interp.state.current_frame()
         if randint(0, 1):
             return Successor(
                 stmt.then_successor, *frame.get_values(stmt.then_arguments)

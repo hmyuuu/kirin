@@ -17,6 +17,7 @@ from kirin.analysis.forward import ForwardFrame
 class FeeAnalysis(Forward[Item]):
     keys = ["food.fee"]
     lattice = Item
+    void = None  # Required by AbstractInterpreter
     nap_count: int = field(init=False)
 
     def initialize(self):
@@ -35,14 +36,17 @@ class FeeAnalysis(Forward[Item]):
         self.nap_count = 0
         return self
 
-    def eval_stmt_fallback(
+    def eval_fallback(
         self, frame: ForwardFrame[Item], stmt: ir.Statement
     ) -> tuple[Item, ...] | interp.SpecialValue[Item]:
         return ()
 
-    def run_method(self, method: ir.Method, args: tuple[Item, ...]):
-        return self.run_callable(method.code, (self.lattice.bottom(),) + args)
+    def method_self(self, method: ir.Method) -> Item:
+        """Return the self value for the given method."""
+        return self.lattice.bottom()
 
+    def run_method(self, method: ir.Method, args: tuple[Item, ...]):
+        return self.run(method.code,  args)
 
 @py.constant.dialect.register(key="food.fee")
 class PyConstMethodTable(interp.MethodTable):
@@ -54,9 +58,9 @@ class PyConstMethodTable(interp.MethodTable):
         frame: interp.Frame[Item],
         stmt: py.constant.Constant,
     ):
-        if isinstance(stmt.value, int):
+        if isinstance(stmt.value.data, int):
             return (ConstIntItem(data=stmt.value),)
-        elif isinstance(stmt.value, Food):
+        elif isinstance(stmt.value.data, Food):
             return (ItemFood(type=stmt.value.type),)
 
         else:
@@ -79,9 +83,9 @@ class PyBinOpMethodTable(interp.MethodTable):
         right = frame.get(stmt.rhs)
 
         if isinstance(left, AtLeastXItem) or isinstance(right, AtLeastXItem):
-            out = AtLeastXItem(data=left.data + right.data)
+            out = AtLeastXItem(data=left.data.data + right.data)
         else:
-            out = ConstIntItem(data=left.data + right.data)
+            out = ConstIntItem(data=left.data.data + right.data)
 
         return (out,)
 

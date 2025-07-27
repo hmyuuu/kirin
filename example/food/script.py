@@ -96,17 +96,17 @@ def analysis_demo(x: int):
     return x
 
 
-fee_analysis = FeeAnalysis(analysis_demo.dialects)
-results, expect = fee_analysis.run_analysis(
-    analysis_demo, args=(AtLeastXItem(data=10),)
+fee_analysis = FeeAnalysis(analysis_demo.dialects).initialize()
+results, expect = fee_analysis.run_method(
+    analysis_demo, args=AtLeastXItem(data=10)
 )
 print(results.entries)
 print(fee_analysis.nap_count)
 analysis_demo.print(analysis=results.entries)
 
 
-emitter = EmitReceptMain()
-emitter.recept_analysis_result = results.entries
+# emitter = EmitReceptMain()
+# emitter.recept_analysis_result = results.entries
 
-emitter.run(analysis_demo, ("",))
-print(emitter.get_output())
+# emitter.run(analysis_demo, ("",))
+# print(emitter.get_output())

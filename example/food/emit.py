@@ -8,9 +8,9 @@ from dialect import dialect
 
 from kirin import ir, interp
 from lattice import Item, ItemServing, AtLeastXItem, ConstIntItem
-from kirin.emit import EmitStr, EmitStrFrame
+from kirin.emit import EmitABC as EmitStr, EmitFrame as EmitStrFrame
 from kirin.dialects import func
-from kirin.emit.exceptions import EmitError
+# EmitError has been removed, using RuntimeError instead
 
 
 def default_menu_price():
@@ -24,6 +24,7 @@ def default_menu_price():
 @dataclass
 class EmitReceptMain(EmitStr):
     keys = ["emit.recept"]
+    void = ""
     dialects: ir.DialectGroup = field(default_factory=lambda: food)
     file: StringIO = field(default_factory=StringIO)
     menu_price: dict[str, float] = field(default_factory=default_menu_price)
@@ -87,7 +88,7 @@ class FoodEmit(interp.MethodTable):
                 f"  ${emit.menu_price[serving_item.type] * serving_item.count.data}"
             )
         else:
-            raise EmitError("invalid analysis result.")
+            raise RuntimeError("invalid analysis result.")
 
         emit.writeln(frame, f"{serving_item.type}\t{amount_str}\t{price_str}")
 
